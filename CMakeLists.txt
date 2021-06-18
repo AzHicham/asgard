@@ -16,7 +16,7 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold")
-    SET(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAG} --coverage -g")
+    SET(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAG} --coverage -fprofile-arcs -ftest-coverage -g")
     SET(CMAKE_EXE_LINKER_FLAGS_PROFILE "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
