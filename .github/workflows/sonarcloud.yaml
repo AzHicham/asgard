@@ -1,0 +1,60 @@
+name: SonarCloud
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  sonar_analysis:
+    runs-on: ubuntu-latest
+    container:
+        image: navitia/asgard-build-deps:latest
+
+    steps:
+    - name: Free up space
+      run: rm -rf /usr/share/dotnet/*
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+          submodules: 'recursive'
+
+    - name: Install Gcov and SonarCloud's dependencies for C++ analysis
+      run : |
+        apt update -y
+        apt install -y unzip wget gcovr
+        wget 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip' 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.0.2311-linux.zip'
+        unzip -u build-wrapper-linux-x86.zip
+        unzip -u sonar-scanner-cli-4.6.0.2311-linux.zip
+        
+    # - name: Cache Sonar
+     # id: cache-sonar
+     # uses: actions/cache@v2
+     # with:
+      #  path: sonar_cache
+        #${{ github.event.head_commit.id }}
+        #key: sonar-cache-
+       # restore-keys: |
+        #    sonar-cache-
+
+    - name: Configure
+      run: |
+        cp -r /libvalhalla .
+        cmake -DCMAKE_BUILD_TYPE=Profile .
+
+    - name: Build
+      run: build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir build-wrapper-output-dir make -j $(nproc)
+
+    - name: Tests & coverage
+      run: cd asgard && ctest && gcovr -k -r . -f asgard --sonarqube cov.xml || exit 0
+
+    - name: SonarCloud Scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+          sonar-scanner-4.6.0.2311-linux/bin/sonar-scanner \
+                -Dsonar.login=28c989c4ce2b2142774b0ae52e7162a9ec289177 \
+                -Dsonar.cfamily.threads=$(nproc)
+                
