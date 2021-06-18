@@ -1,0 +1,202 @@
+[
+{
+  "directory": "/__w/asgard/asgard",
+  "command": "/usr/bin/c++   -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/config.dir/asgard/config.cpp.o -c /__w/asgard/asgard/asgard/config.cpp",
+  "file": "/__w/asgard/asgard/asgard/config.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp",
+  "command": "/usr/bin/c++   -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googletest/include -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock/include -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googletest -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/gmock_main.dir/3rdparty/googletest/googletest/src/gtest-all.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googletest/src/gtest-all.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googletest/src/gtest-all.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp",
+  "command": "/usr/bin/c++   -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googletest/include -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock/include -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googletest -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/gmock_main.dir/3rdparty/googletest/googlemock/src/gmock-all.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock/src/gmock-all.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock/src/gmock-all.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp",
+  "command": "/usr/bin/c++   -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googletest/include -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock/include -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googletest -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/gmock_main.dir/3rdparty/googletest/googlemock/src/gmock_main.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock/src/gmock_main.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/googletest/googlemock/src/gmock_main.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/check_names.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/check_names.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/check_names.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/counter.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/counter.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/counter.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/counter_builder.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/counter_builder.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/counter_builder.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/gauge.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/gauge.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/gauge.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/gauge_builder.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/gauge_builder.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/gauge_builder.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/histogram.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/histogram.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/histogram.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/histogram_builder.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/histogram_builder.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/histogram_builder.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/registry.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/registry.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/registry.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/summary.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/summary.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/summary.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/summary_builder.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/summary_builder.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/summary_builder.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/core",
+  "command": "/usr/bin/c++   -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-core.dir/src/text_serializer.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/core/src/text_serializer.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/core/src/text_serializer.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/pull",
+  "command": "/usr/bin/c++   -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/civetweb/include -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-pull.dir/src/exposer.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/pull/src/exposer.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/pull/src/exposer.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/pull",
+  "command": "/usr/bin/c++   -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/civetweb/include -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/prometheus-cpp-pull.dir/src/handler.cc.o -c /__w/asgard/asgard/third_party/prometheus-cpp/pull/src/handler.cc",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/pull/src/handler.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/pull",
+  "command": "/usr/bin/c++  -DCIVETWEB_API=\"\" -DNDEBUG -DNO_CACHING -DNO_CGI -DNO_FILES -DNO_SSL -DUSE_IPV6 -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/civetweb/include -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -w -std=c++11 -O3 -DNDEBUG   -o CMakeFiles/civetweb.dir/__/3rdparty/civetweb/src/CivetServer.cpp.o -c /__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/civetweb/src/CivetServer.cpp",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/civetweb/src/CivetServer.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/third_party/prometheus-cpp/pull",
+  "command": "/usr/bin/cc -DCIVETWEB_API=\"\" -DNDEBUG -DNO_CACHING -DNO_CGI -DNO_FILES -DNO_SSL -DUSE_IPV6 -I/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/civetweb/include -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include  -O3 -DNDEBUG   -o CMakeFiles/civetweb.dir/__/3rdparty/civetweb/src/civetweb.c.o   -c /__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/civetweb/src/civetweb.c",
+  "file": "/__w/asgard/asgard/third_party/prometheus-cpp/3rdparty/civetweb/src/civetweb.c"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/asgard.dir/asgard.cpp.o -c /__w/asgard/asgard/asgard/asgard.cpp",
+  "file": "/__w/asgard/asgard/asgard/asgard.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/metrics.cpp.o -c /__w/asgard/asgard/asgard/metrics.cpp",
+  "file": "/__w/asgard/asgard/asgard/metrics.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/mode_costing.cpp.o -c /__w/asgard/asgard/asgard/mode_costing.cpp",
+  "file": "/__w/asgard/asgard/asgard/mode_costing.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/direct_path_response_builder.cpp.o -c /__w/asgard/asgard/asgard/direct_path_response_builder.cpp",
+  "file": "/__w/asgard/asgard/asgard/direct_path_response_builder.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/handler.cpp.o -c /__w/asgard/asgard/asgard/handler.cpp",
+  "file": "/__w/asgard/asgard/asgard/handler.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/util.cpp.o -c /__w/asgard/asgard/asgard/util.cpp",
+  "file": "/__w/asgard/asgard/asgard/util.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/__/utils/zmq.cpp.o -c /__w/asgard/asgard/utils/zmq.cpp",
+  "file": "/__w/asgard/asgard/utils/zmq.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/__/utils/exception.cpp.o -c /__w/asgard/asgard/utils/exception.cpp",
+  "file": "/__w/asgard/asgard/utils/exception.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/__/utils/coord_parser.cpp.o -c /__w/asgard/asgard/utils/coord_parser.cpp",
+  "file": "/__w/asgard/asgard/utils/coord_parser.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/request.pb.cc.o -c /__w/asgard/asgard/asgard/request.pb.cc",
+  "file": "/__w/asgard/asgard/asgard/request.pb.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/response.pb.cc.o -c /__w/asgard/asgard/asgard/response.pb.cc",
+  "file": "/__w/asgard/asgard/asgard/response.pb.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard",
+  "command": "/usr/bin/c++  -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/libasgard.dir/type.pb.cc.o -c /__w/asgard/asgard/asgard/type.pb.cc",
+  "file": "/__w/asgard/asgard/asgard/type.pb.cc"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/benchmark_projector_cache.dir/benchmark_projector_cache.cpp.o -c /__w/asgard/asgard/asgard/tests/benchmark_projector_cache.cpp",
+  "file": "/__w/asgard/asgard/asgard/tests/benchmark_projector_cache.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/benchmark_projector_cache.dir/__/__/utils/timer.cpp.o -c /__w/asgard/asgard/utils/timer.cpp",
+  "file": "/__w/asgard/asgard/utils/timer.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -DTESTS_BUILD_DIR=\\\"/__w/asgard/asgard/asgard/tests/\\\" -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/handler_test.dir/handler_test.cpp.o -c /__w/asgard/asgard/asgard/tests/handler_test.cpp",
+  "file": "/__w/asgard/asgard/asgard/tests/handler_test.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -DTESTS_BUILD_DIR=\\\"/__w/asgard/asgard/asgard/tests/\\\" -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/handler_test.dir/tile_maker.cpp.o -c /__w/asgard/asgard/asgard/tests/tile_maker.cpp",
+  "file": "/__w/asgard/asgard/asgard/tests/tile_maker.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -DTESTS_BUILD_DIR=\\\"/__w/asgard/asgard/asgard/tests/\\\" -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/projector_test.dir/projector_test.cpp.o -c /__w/asgard/asgard/asgard/tests/projector_test.cpp",
+  "file": "/__w/asgard/asgard/asgard/tests/projector_test.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -DTESTS_BUILD_DIR=\\\"/__w/asgard/asgard/asgard/tests/\\\" -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/projector_test.dir/tile_maker.cpp.o -c /__w/asgard/asgard/asgard/tests/tile_maker.cpp",
+  "file": "/__w/asgard/asgard/asgard/tests/tile_maker.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/util_test.dir/util_test.cpp.o -c /__w/asgard/asgard/asgard/tests/util_test.cpp",
+  "file": "/__w/asgard/asgard/asgard/tests/util_test.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/direct_path_response_builder_test.dir/direct_path_response_builder_test.cpp.o -c /__w/asgard/asgard/asgard/tests/direct_path_response_builder_test.cpp",
+  "file": "/__w/asgard/asgard/asgard/tests/direct_path_response_builder_test.cpp"
+},
+{
+  "directory": "/__w/asgard/asgard/asgard/tests",
+  "command": "/usr/bin/c++  -DBOOST_ALL_NO_LIB -DBOOST_ATOMIC_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_REGEX_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_UNIT_TEST_FRAMEWORK_DYN_LINK -DRAPIDJSON_HAS_STDSTRING -I/__w/asgard/asgard -isystem /__w/asgard/asgard/third_party -isystem /__w/asgard/asgard/libvalhalla/third_party/rapidjson/include -isystem /__w/asgard/asgard/third_party/date/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/core/include -isystem /__w/asgard/asgard/third_party/prometheus-cpp/pull/include   -Wall -pedantic -Wextra -std=c++14 -Wno-unused-parameter -rdynamic -fuse-ld=gold  -DENABLE_THREAD_SAFE_TILE_REF_COUNT -O3 -DNDEBUG   -o CMakeFiles/direct_path_response_builder_test.dir/tile_maker.cpp.o -c /__w/asgard/asgard/asgard/tests/tile_maker.cpp",
+  "file": "/__w/asgard/asgard/asgard/tests/tile_maker.cpp"
+}
+]

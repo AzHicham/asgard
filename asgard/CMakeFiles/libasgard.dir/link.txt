@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblibasgard.a  CMakeFiles/libasgard.dir/metrics.cpp.o CMakeFiles/libasgard.dir/mode_costing.cpp.o CMakeFiles/libasgard.dir/direct_path_response_builder.cpp.o CMakeFiles/libasgard.dir/handler.cpp.o CMakeFiles/libasgard.dir/util.cpp.o CMakeFiles/libasgard.dir/__/utils/zmq.cpp.o CMakeFiles/libasgard.dir/__/utils/exception.cpp.o CMakeFiles/libasgard.dir/__/utils/coord_parser.cpp.o CMakeFiles/libasgard.dir/request.pb.cc.o CMakeFiles/libasgard.dir/response.pb.cc.o CMakeFiles/libasgard.dir/type.pb.cc.o
+/usr/bin/ranlib liblibasgard.a

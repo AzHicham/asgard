@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+7d030d3b0210887f0e7989943023af90 asgard/request.pb.h
