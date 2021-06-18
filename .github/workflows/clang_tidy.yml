@@ -34,6 +34,10 @@ jobs:
     - name: Clang-tidy
       run: ls && python /usr/bin/run-clang-tidy-10.py -header-filter='./asgard/*' -format -fix -p build || echo "Files have been tidied ! Let's commit them"
 
+    # To avoid any error with git when creating PR 
+    - name: Remove folder libvalhalla 
+      run: rm -rf libvalhalla 
+
     - name: Commit and push changes
       uses: peter-evans/create-pull-request@v3
       with:
