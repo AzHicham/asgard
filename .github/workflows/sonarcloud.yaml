@@ -45,12 +45,15 @@ jobs:
 
     - name: Tests & coverage
       run: |
-        cd build/asgard && ctest && gcovr -k -r . -f asgard --sonarqube ../../cov.xml
+        cd build/asgard
+        ctest
+        gcovr -k -r . -f asgard --sonarqube ../../cov.xml --verbose
 
     - name: SonarCloud Scan
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
+          ls | grep cov.xml
           sonar-scanner-4.6.0.2311-linux/bin/sonar-scanner \
                 -Dsonar.login=$SONAR_TOKEN \
                 -Dsonar.cfamily.threads=$(nproc)
