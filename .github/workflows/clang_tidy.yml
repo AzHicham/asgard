@@ -1,6 +1,7 @@
 name: Clang-tidy
 
 on:
+  pull_request:
   push:
     branches:
     - master
