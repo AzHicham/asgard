@@ -47,7 +47,7 @@ jobs:
       run: |
         cd build/asgard
         ctest
-        gcovr -k -r . -f asgard --sonarqube ../../cov.xml --verbose
+        gcovr -k -r . --sonarqube ../../cov.xml --verbose
 
     - name: SonarCloud Scan
       env:
