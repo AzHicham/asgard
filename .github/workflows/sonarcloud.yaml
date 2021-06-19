@@ -45,9 +45,7 @@ jobs:
 
     - name: Tests & coverage
       run: |
-        cd build/asgard && ctest && gcovr -k -r . -f asgard --sonarqube cov.xml || ls
-        cd .. && ls
-        cd .. && ls
+        cd build/asgard && ctest && gcovr -k -r . -f asgard --sonarqube ../../cov.xml
 
     - name: SonarCloud Scan
       env:
