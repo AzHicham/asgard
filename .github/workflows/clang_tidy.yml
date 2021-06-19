@@ -47,6 +47,7 @@ jobs:
         committer: GitHub <noreply@github.com>
         author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
         title: '[Clang-Tidy] Code maintenance and modernisation'
+        base: master
         body: |
           🤖 This is an automatic PR 🤖
 
