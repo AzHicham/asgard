@@ -2,6 +2,7 @@
 
 #include <valhalla/midgard/logging.h>
 
+#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -53,6 +54,11 @@ struct AsgardConf {
         metrics_binding = get_config<std::string>("ASGARD_METRICS_BINDING", std::string("0.0.0.0:8080"));
 
         auto valhalla_conf_json = get_config<std::string>("ASGARD_VALHALLA_CONF", "/data/valhalla/valhalla.json");
+        if (!boost::filesystem::exists(valhalla_conf_json)) {
+            std::string error{"Valhalla configuration file not found at " + valhalla_conf_json + ". Aborting."};
+            LOG_ERROR(error);
+            throw std::runtime_error(error);
+        }
         ptree::read_json(valhalla_conf_json, valhalla_conf);
 
         reachability = valhalla_conf.get<unsigned int>("loki.service_defaults.minimum_reachability", 0);
