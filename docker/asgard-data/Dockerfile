@@ -4,8 +4,8 @@ WORKDIR /data/valhalla
 RUN apt-get update && apt-get install -y --no-install-recommends \
       tar parallel curl
 
-# Download the pbfs given in argument
-ARG pbf_url=http://download.geofabrik.de/europe/france-latest.osm.pbf
+# Download the pbfs given in argument, download links are seperated by ;
+ARG pbf_url="http://download.geofabrik.de/europe/france-latest.osm.pbf;https://download.geofabrik.de/europe/spain-latest.osm.pbf"
 ARG elevation_min_x_max_x_min_y_max_y='-5.1972 8.3483 42.2646 51.1116'
 
 RUN mkdir osmpbf
