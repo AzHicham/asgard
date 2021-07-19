@@ -68,7 +68,6 @@ RUN apt-get -y purge \
     liblua5.2-dev \
     unzip \
     python-all-dev \
-    vim-common \
     jq \
     gucharmap \
   && apt-get autoremove -y && apt-get clean
