@@ -59,16 +59,3 @@ RUN mkdir -p libvalhalla/build \
               -DBUILD_SHARED_LIBS=Off -DBoost_USE_STATIC_LIBS=ON -DENABLE_THREAD_SAFE_TILE_REF_COUNT=On\
   && make -j$(nproc) install && ldconfig
 
-RUN apt-get -y purge \
-    autoconf \
-    automake \
-    libtool \
-    libgeos-dev \
-    libgeos++-dev \
-    liblua5.2-dev \
-    unzip \
-    python-all-dev \
-    jq \
-    gucharmap \
-  && apt-get autoremove -y && apt-get clean
-
