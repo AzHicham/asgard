@@ -35,8 +35,7 @@ pbnavitia::Response build_journey_response(const pbnavitia::Request& request,
 
 using ConstManeuverItetator = google::protobuf::RepeatedPtrField<valhalla::DirectionsLeg_Maneuver>::const_iterator;
 
-void recompute_date_times_from_arrival(pbnavitia::Journey* journey,
-                              const time_t arrival_posix_time );
+void recompute_date_times_from_arrival(pbnavitia::Journey* journey, const time_t arrival_posix_time);
 
 void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o);
 void compute_metadata(pbnavitia::Journey& pb_journey);

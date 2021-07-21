@@ -294,7 +294,6 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_with_maneuver_duration_test) {
     }
 }
 
-
 BOOST_AUTO_TEST_CASE(handle_trivial_BSS_counterclockwise_with_maneuver_duration_test) {
     tile_maker::TileMaker maker;
     maker.make_tile();
@@ -315,7 +314,6 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_counterclockwise_with_maneuver_duration_
     auto* dp_request = request.mutable_direct_path();
     dp_request->set_clockwise(false);
     dp_request->set_datetime(744);
-
 
     // Origin is A
     add_origin_or_dest_to_request(dp_request->mutable_origin(),
