@@ -5,12 +5,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       tar parallel curl
 
 # Download the pbfs given in argument, download links are seperated by ;
-ARG pbf_url="http://download.geofabrik.de/europe/france-latest.osm.pbf;https://download.geofabrik.de/europe/spain-latest.osm.pbf"
+ARG pbf_url="http://download.geofabrik.de/europe/france-latest.osm.pbf https://download.geofabrik.de/europe/spain-latest.osm.pbf"
 ARG elevation_min_x_max_x_min_y_max_y='-5.1972 8.3483 42.2646 51.1116'
 
 RUN mkdir osmpbf
 RUN cd osmpbf \
-    && IFS=";" \
     && for pbf in $pbf_url; do (wget --progress=bar:force:noscroll $pbf) ; done 
 
 RUN valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --mjolnir-tile-extract ${PWD}/valhalla_tiles.tar --mjolnir-timezone ${PWD}/valhalla_tiles/timezones.sqlite --mjolnir-admin ${PWD}/valhalla_tiles/admins.sqlite --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json
