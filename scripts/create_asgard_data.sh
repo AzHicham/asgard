@@ -5,13 +5,13 @@ usage() { echo "Usage: $0 -e <path_to_valhalla_executables> -i <path_of_pbf_dir>
 while getopts ":e:i:o:" option; do
     case "${option}" in
         e)
-            executable_path=${OPTARG}
+            executable_path=`realpath ${OPTARG}`
             ;;
         i)
-            input_dir=${OPTARG}
+            input_dir=`realpath ${OPTARG}`
             ;;
         o)
-            output_dir=${OPTARG}
+            output_dir=`realpath ${OPTARG}`
             ;;
     esac
 done
