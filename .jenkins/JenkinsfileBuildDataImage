@@ -17,7 +17,7 @@ pipeline {
         stage('Build Data Image') {
             steps {
                 sh 'echo "Build data image"'
-                sh "make build-data-image TAG=${DATA_IMAGE_TAG} PBF_URL=${PBF_URL} BBOX='${ELEVATION_BBOX}'" 
+                sh "make build-data-image TAG=${DATA_IMAGE_TAG} PBF_URL='${PBF_URL}' BBOX='${ELEVATION_BBOX}'" 
             }
         }
 	stage('Docker Login') {
