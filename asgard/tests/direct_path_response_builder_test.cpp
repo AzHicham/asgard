@@ -68,6 +68,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         valhalla::Api api;
         std::vector<thor::PathInfo> path_info_list = create_path_info_list();
         request.mutable_direct_path()->set_datetime(1470241573);
+        request.mutable_direct_path()->set_clockwise(true);
 
         auto trip_leg = create_trip_leg(api);
 
@@ -103,6 +104,42 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         BOOST_CHECK_EQUAL(section.destination().name(), "");
         BOOST_CHECK_CLOSE(dest_coords.lon(), 42.0794687f, 0.0001f);
         BOOST_CHECK_CLOSE(dest_coords.lat(), 7.974815640f, 0.0001f);
+    }
+
+    // same as above, but counterclockwise
+    {
+        pbnavitia::Request request;
+        auto* dp = request.mutable_direct_path();
+        auto* params = dp->mutable_streetnetwork_params();
+        params->set_origin_mode("car");
+
+        valhalla::Api api;
+        std::vector<thor::PathInfo> path_info_list = create_path_info_list();
+        request.mutable_direct_path()->set_datetime(1470241573);
+        request.mutable_direct_path()->set_clockwise(false);
+
+        auto trip_leg = create_trip_leg(api);
+
+        auto response = build_journey_response(request, path_info_list, *trip_leg, api);
+        BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::ITINERARY_FOUND);
+        BOOST_CHECK_EQUAL(response.journeys_size(), 1);
+
+        auto const journey = response.journeys(0);
+        BOOST_CHECK_EQUAL(journey.nb_sections(), 1);
+        BOOST_CHECK_EQUAL(journey.nb_transfers(), 0);
+        BOOST_CHECK_EQUAL(journey.duration(), 20);
+        BOOST_CHECK_EQUAL(journey.requested_date_time(), 1470241573);
+        BOOST_CHECK_EQUAL(journey.departure_date_time(), 1470241553);
+        BOOST_CHECK_EQUAL(journey.arrival_date_time(), 1470241573);
+
+        auto const section = journey.sections(0);
+        BOOST_CHECK_EQUAL(section.type(), pbnavitia::STREET_NETWORK);
+        BOOST_CHECK_EQUAL(section.id(), "section_0");
+        BOOST_CHECK_EQUAL(section.duration(), 20);
+        BOOST_CHECK_EQUAL(section.street_network().mode(), pbnavitia::Car);
+        BOOST_CHECK_EQUAL(section.begin_date_time(), 1470241553);
+        BOOST_CHECK_EQUAL(section.end_date_time(), 1470241573);
+        BOOST_CHECK_EQUAL(section.length(), 30);
     }
 }
 
