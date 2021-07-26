@@ -403,9 +403,27 @@ pbnavitia::Response build_journey_response(const pbnavitia::Request& request,
     default:
         throw std::runtime_error{"Error when determining mono modal, unknow mode: " + mode};
     };
+
+    if (request.direct_path().clockwise() == false) {
+        recompute_date_times_from_arrival(journey, departure_posix_time);
+    }
+
     compute_metadata(*journey);
     LOG_INFO("Direct path response done with mode: " + mode);
     return response;
+}
+
+void recompute_date_times_from_arrival(pbnavitia::Journey* journey, const time_t arrival_posix_time) {
+    journey->set_departure_date_time(arrival_posix_time - time_t(journey->duration()));
+    journey->set_arrival_date_time(arrival_posix_time);
+    auto last_section_arrival_time = arrival_posix_time;
+    auto sections = journey->mutable_sections();
+    for (auto section_iter = sections->rbegin(); section_iter != sections->rend(); section_iter++) {
+        section_iter->set_end_date_time(last_section_arrival_time);
+        auto begin_date_time = last_section_arrival_time - section_iter->duration();
+        section_iter->set_begin_date_time(begin_date_time);
+        last_section_arrival_time = begin_date_time;
+    }
 }
 
 void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o) {
