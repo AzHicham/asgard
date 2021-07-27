@@ -344,4 +344,52 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_counterclockwise_with_maneuver_duration_
     }
 }
 
+BOOST_AUTO_TEST_CASE(handle_bss_matrix_test) {
+    tile_maker::TileMaker maker;
+    maker.make_tile();
+
+    zmq::context_t context(1);
+    const Metrics metrics{boost::none};
+    const Projector projector{10, 0, 0};
+
+    boost::property_tree::ptree conf;
+    conf.put("tile_dir", maker.get_tile_dir());
+    valhalla::baldr::GraphReader graph(conf);
+    Context c{context, graph, metrics, projector};
+
+    Handler h{c};
+
+    pbnavitia::Request request;
+    request.set_requested_api(pbnavitia::street_network_routing_matrix);
+    auto* sn_request = request.mutable_sn_routing_matrix();
+
+    auto* request_params = sn_request->mutable_streetnetwork_params();
+
+    add_origin_or_dest_to_request(sn_request->add_origins(),
+                                  make_string_from_point(maker.get_all_points().front()));
+
+    for (auto const& p : maker.get_all_points()) {
+        add_origin_or_dest_to_request(sn_request->add_destinations(), make_string_from_point(p));
+    }
+
+    sn_request->set_mode("bss");
+    sn_request->set_max_duration(100000);
+
+    request_params->set_walking_speed(42); // yes, the speed should be clamped
+    request_params->set_bss_speed(424242); // same as above
+
+    const auto response = h.handle(request);
+
+    std::vector<unsigned int> expected_times = {111, 55, 222, 333, 179, 284};
+    pbnavitia::Response expected_response;
+    auto* row = expected_response.mutable_sn_routing_matrix()->add_rows();
+    for (auto const& time : expected_times) {
+        auto* k = row->add_routing_response();
+        k->set_routing_status(pbnavitia::RoutingStatus::reached);
+        k->set_duration(time);
+    }
+
+    BOOST_CHECK_EQUAL(expected_response.DebugString(), response.DebugString());
+}
+
 } // namespace asgard
