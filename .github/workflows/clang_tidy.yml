@@ -34,11 +34,13 @@ jobs:
     - name: Clang-tidy
       run: python /usr/bin/run-clang-tidy-10.py -header-filter='./asgard/*' -format -fix -p build || echo "Files have been tidied ! Let's commit them"
 
-    # To avoid any error with git when creating PR 
+    # To avoid any error with git when creating PR
     - name: Remove folder libvalhalla 
       run: rm -rf libvalhalla 
 
     - name: Commit and push changes
+      # Handle case with no clang-tidy fix
+      continue-on-error: true
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -58,6 +60,7 @@ jobs:
         branch: auto/clang-tidy
 
     - name: Check outputs
+      if: ${{ success() }}
       run: |
         echo "Pull Request Number - ${{ env.PULL_REQUEST_NUMBER }}"
         echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"

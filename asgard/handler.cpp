@@ -47,6 +47,7 @@ using ProjectionFailedMask = std::bitset<MAX_MASK_SIZE>;
 
 static const std::unordered_map<std::string, float> TIMECOST_DIVISOR = {{"walking", thor::kTimeDistCostThresholdPedestrianDivisor},
                                                                         {"bike", thor::kTimeDistCostThresholdBicycleDivisor},
+                                                                        {"bss", thor::kTimeDistCostThresholdPedestrianDivisor},
                                                                         {"car", thor::kTimeDistCostThresholdAutoDivisor},
                                                                         {"taxi", thor::kTimeDistCostThresholdAutoDivisor}};
 
@@ -54,6 +55,7 @@ static const std::unordered_map<std::string, float> TIMECOST_DIVISOR = {{"walkin
 // in meters
 static const std::unordered_map<std::string, float> MAX_MATRIX_DISTANCE = {{"walking", 200000},
                                                                            {"bike", 200000},
+                                                                           {"bss", 200000},
                                                                            {"car", 500000},
                                                                            {"taxi", 500000}};
 
@@ -61,6 +63,7 @@ static const std::unordered_map<std::string, float> MAX_MATRIX_DISTANCE = {{"wal
 // in m/s
 static const std::unordered_map<std::string, float> MAX_SPEED = {{"walking", 4},
                                                                  {"bike", 15},
+                                                                 {"bss", 15},
                                                                  {"car", 50},
                                                                  {"taxi", 50}};
 
@@ -124,7 +127,12 @@ make_modecosting_args(const pbnavitia::DirectPathRequest& request) {
     args.mode = request.streetnetwork_params().origin_mode();
 
     args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = request_params.walking_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = request_params.bike_speed();
+
+    auto bike_speed = request_params.bike_speed();
+    if (args.mode == "bss" && request_params.has_bss_speed()) {
+        bike_speed = request_params.bss_speed();
+    }
+    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
     args.speeds[util::convert_navitia_to_valhalla_costing("car")] = request_params.car_speed();
     args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = request_params.car_no_park_speed();
 
@@ -145,9 +153,12 @@ make_modecosting_args(const pbnavitia::StreetNetworkRoutingMatrixRequest& reques
     args.mode = request.mode();
 
     auto const& request_params = request.streetnetwork_params();
-
+    auto bike_speed = request_params.bike_speed();
+    if (args.mode == "bss" && request_params.has_bss_speed()) {
+        bike_speed = request_params.bss_speed();
+    }
     args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = request_params.walking_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = request_params.bike_speed();
+    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
     args.speeds[util::convert_navitia_to_valhalla_costing("car")] = request_params.car_speed();
     args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = request_params.car_no_park_speed();
 
