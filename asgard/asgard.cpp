@@ -116,6 +116,4 @@ int main() {
             LOG_ERROR(e.what());
         } catch (const zmq::error_t&) {} //lors d'un SIGHUP on restore la queue
     }
-
-    return 0;
 }
