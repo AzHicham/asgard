@@ -78,11 +78,32 @@ pbnavitia::Response make_error_response(pbnavitia::Error_error_id err_id, const 
     return error_response;
 }
 
-float get_distance(const std::string& mode, float duration) {
+float get_max_distance(const std::string& mode, const pbnavitia::StreetNetworkRoutingMatrixRequest& request) {
+
+    const auto duration = request.max_duration();
+
     if (duration < 0) {
         throw std::runtime_error("Matrix max duration is negative");
     }
     float max_distance = duration * TIMECOST_DIVISOR.at(mode);
+
+    switch (util::convert_navitia_to_streetnetwork_mode(mode)) {
+    case pbnavitia::StreetNetworkMode::Walking:
+        max_distance *= request.asgard_max_walking_duration_coeff();
+        break;
+    case pbnavitia::StreetNetworkMode::Bike:
+        max_distance *= request.asgard_max_bike_duration_coeff();
+        break;
+    case pbnavitia::StreetNetworkMode::Bss:
+        max_distance *= request.asgard_max_bss_duration_coeff();
+        break;
+    case pbnavitia::StreetNetworkMode::Car:
+    case pbnavitia::StreetNetworkMode::Taxi:
+        max_distance *= request.asgard_max_car_duration_coeff();
+        break;
+    default:
+        throw std::runtime_error(std::string("Cannot compute max duration for mode: ") + mode);
+    }
     if (max_distance > MAX_MATRIX_DISTANCE.at(mode)) {
         LOG_ERROR(std::string("Matrix distance for mode ") + mode + " is too large, we have to clamp it");
         return MAX_MATRIX_DISTANCE.at(mode);
@@ -272,7 +293,7 @@ pbnavitia::Response Handler::handle_matrix(const pbnavitia::Request& request) {
                                         graph,
                                         mode_costing.get_costing(),
                                         util::convert_navitia_to_valhalla_mode(mode),
-                                        get_distance(mode, request.sn_routing_matrix().max_duration()));
+                                        get_max_distance(mode, request.sn_routing_matrix()));
 
     } else {
         res = matrix.SourceToTarget(valhalla_location_sources,
@@ -280,7 +301,7 @@ pbnavitia::Response Handler::handle_matrix(const pbnavitia::Request& request) {
                                     graph,
                                     mode_costing.get_costing(),
                                     util::convert_navitia_to_valhalla_mode(mode),
-                                    get_distance(mode, request.sn_routing_matrix().max_duration()));
+                                    get_max_distance(mode, request.sn_routing_matrix()));
     }
 
     pbnavitia::Response response;
