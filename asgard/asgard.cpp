@@ -16,6 +16,7 @@
 
 #include "context.h"
 #include "handler.h"
+#include "init.h"
 #include "utils/exception.h"
 #include "utils/zmq.h"
 
@@ -84,6 +85,8 @@ static void worker(const asgard::Context& context) {
 }
 
 int main() {
+    asgard::init_app();
+
     asgard::AsgardConf asgard_conf{};
 
     boost::thread_group threads;
@@ -113,6 +116,4 @@ int main() {
             LOG_ERROR(e.what());
         } catch (const zmq::error_t&) {} //lors d'un SIGHUP on restore la queue
     }
-
-    return 0;
 }

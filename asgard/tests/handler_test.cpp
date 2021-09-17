@@ -134,6 +134,7 @@ BOOST_AUTO_TEST_CASE(handle_direct_path_trivial_test) {
     pbnavitia::Request request;
     request.set_requested_api(pbnavitia::direct_path);
     auto* dp_request = request.mutable_direct_path();
+    dp_request->set_clockwise(true);
 
     // Origin is A
     add_origin_or_dest_to_request(dp_request->mutable_origin(),
@@ -218,6 +219,7 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_test) {
     pbnavitia::Request request;
     request.set_requested_api(pbnavitia::direct_path);
     auto* dp_request = request.mutable_direct_path();
+    dp_request->set_clockwise(true);
 
     // Origin is A
     add_origin_or_dest_to_request(dp_request->mutable_origin(),
@@ -261,6 +263,7 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_with_maneuver_duration_test) {
     pbnavitia::Request request;
     request.set_requested_api(pbnavitia::direct_path);
     auto* dp_request = request.mutable_direct_path();
+    dp_request->set_clockwise(true);
 
     // Origin is A
     add_origin_or_dest_to_request(dp_request->mutable_origin(),
@@ -290,4 +293,103 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_with_maneuver_duration_test) {
                                       expected_section_length, expected_section_duration);
     }
 }
+
+BOOST_AUTO_TEST_CASE(handle_trivial_BSS_counterclockwise_with_maneuver_duration_test) {
+    tile_maker::TileMaker maker;
+    maker.make_tile();
+
+    zmq::context_t context(1);
+    const Metrics metrics{boost::none};
+    const Projector projector{10, 0, 0};
+
+    boost::property_tree::ptree conf;
+    conf.put("tile_dir", maker.get_tile_dir());
+    valhalla::baldr::GraphReader graph(conf);
+    Context c{context, graph, metrics, projector};
+
+    Handler h{c};
+
+    pbnavitia::Request request;
+    request.set_requested_api(pbnavitia::direct_path);
+    auto* dp_request = request.mutable_direct_path();
+    dp_request->set_clockwise(false);
+    dp_request->set_datetime(744);
+
+    // Origin is A
+    add_origin_or_dest_to_request(dp_request->mutable_origin(),
+                                  make_string_from_point(maker.a.second));
+
+    // Destination is i
+    add_origin_or_dest_to_request(dp_request->mutable_destination(),
+                                  make_string_from_point(maker.i.second));
+
+    auto* sn_params = dp_request->mutable_streetnetwork_params();
+    sn_params->set_origin_mode("bss");
+    sn_params->set_walking_speed(2);
+    sn_params->set_bike_speed(4);
+    float rent_duration = 42;
+    float return_duration = 24;
+
+    sn_params->set_bss_rent_duration(rent_duration);
+    sn_params->set_bss_return_duration(return_duration);
+
+    // Last section corresponds to the arrival so its length and duration equal 0
+    std::vector<float> expected_section_length = {111, 0, 1556, 0, 445};
+    std::vector<float> expected_section_duration = {55, rent_duration, 400, return_duration, 222};
+
+    {
+        const auto response = h.handle(request);
+        check_bss_journey_direct_path(response,
+                                      expected_section_length, expected_section_duration);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(handle_bss_matrix_test) {
+    tile_maker::TileMaker maker;
+    maker.make_tile();
+
+    zmq::context_t context(1);
+    const Metrics metrics{boost::none};
+    const Projector projector{10, 0, 0};
+
+    boost::property_tree::ptree conf;
+    conf.put("tile_dir", maker.get_tile_dir());
+    valhalla::baldr::GraphReader graph(conf);
+    Context c{context, graph, metrics, projector};
+
+    Handler h{c};
+
+    pbnavitia::Request request;
+    request.set_requested_api(pbnavitia::street_network_routing_matrix);
+    auto* sn_request = request.mutable_sn_routing_matrix();
+
+    auto* request_params = sn_request->mutable_streetnetwork_params();
+
+    add_origin_or_dest_to_request(sn_request->add_origins(),
+                                  make_string_from_point(maker.get_all_points().front()));
+
+    for (auto const& p : maker.get_all_points()) {
+        add_origin_or_dest_to_request(sn_request->add_destinations(), make_string_from_point(p));
+    }
+
+    sn_request->set_mode("bss");
+    sn_request->set_max_duration(100000);
+
+    request_params->set_walking_speed(42); // yes, the speed should be clamped
+    request_params->set_bss_speed(424242); // same as above
+
+    const auto response = h.handle(request);
+
+    std::vector<unsigned int> expected_times = {111, 55, 222, 333, 179, 284};
+    pbnavitia::Response expected_response;
+    auto* row = expected_response.mutable_sn_routing_matrix()->add_rows();
+    for (auto const& time : expected_times) {
+        auto* k = row->add_routing_response();
+        k->set_routing_status(pbnavitia::RoutingStatus::reached);
+        k->set_duration(time);
+    }
+
+    BOOST_CHECK_EQUAL(expected_response.DebugString(), response.DebugString());
+}
+
 } // namespace asgard

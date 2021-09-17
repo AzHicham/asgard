@@ -47,6 +47,7 @@ using ProjectionFailedMask = std::bitset<MAX_MASK_SIZE>;
 
 static const std::unordered_map<std::string, float> TIMECOST_DIVISOR = {{"walking", thor::kTimeDistCostThresholdPedestrianDivisor},
                                                                         {"bike", thor::kTimeDistCostThresholdBicycleDivisor},
+                                                                        {"bss", thor::kTimeDistCostThresholdPedestrianDivisor},
                                                                         {"car", thor::kTimeDistCostThresholdAutoDivisor},
                                                                         {"taxi", thor::kTimeDistCostThresholdAutoDivisor}};
 
@@ -54,6 +55,7 @@ static const std::unordered_map<std::string, float> TIMECOST_DIVISOR = {{"walkin
 // in meters
 static const std::unordered_map<std::string, float> MAX_MATRIX_DISTANCE = {{"walking", 200000},
                                                                            {"bike", 200000},
+                                                                           {"bss", 200000},
                                                                            {"car", 500000},
                                                                            {"taxi", 500000}};
 
@@ -61,6 +63,7 @@ static const std::unordered_map<std::string, float> MAX_MATRIX_DISTANCE = {{"wal
 // in m/s
 static const std::unordered_map<std::string, float> MAX_SPEED = {{"walking", 4},
                                                                  {"bike", 15},
+                                                                 {"bss", 15},
                                                                  {"car", 50},
                                                                  {"taxi", 50}};
 
@@ -75,11 +78,32 @@ pbnavitia::Response make_error_response(pbnavitia::Error_error_id err_id, const 
     return error_response;
 }
 
-float get_distance(const std::string& mode, float duration) {
+float get_max_distance(const std::string& mode, const pbnavitia::StreetNetworkRoutingMatrixRequest& request) {
+
+    const auto duration = request.max_duration();
+
     if (duration < 0) {
         throw std::runtime_error("Matrix max duration is negative");
     }
     float max_distance = duration * TIMECOST_DIVISOR.at(mode);
+
+    switch (util::convert_navitia_to_streetnetwork_mode(mode)) {
+    case pbnavitia::StreetNetworkMode::Walking:
+        max_distance *= request.asgard_max_walking_duration_coeff();
+        break;
+    case pbnavitia::StreetNetworkMode::Bike:
+        max_distance *= request.asgard_max_bike_duration_coeff();
+        break;
+    case pbnavitia::StreetNetworkMode::Bss:
+        max_distance *= request.asgard_max_bss_duration_coeff();
+        break;
+    case pbnavitia::StreetNetworkMode::Car:
+    case pbnavitia::StreetNetworkMode::Taxi:
+        max_distance *= request.asgard_max_car_duration_coeff();
+        break;
+    default:
+        throw std::runtime_error(std::string("Cannot compute max duration for mode: ") + mode);
+    }
     if (max_distance > MAX_MATRIX_DISTANCE.at(mode)) {
         LOG_ERROR(std::string("Matrix distance for mode ") + mode + " is too large, we have to clamp it");
         return MAX_MATRIX_DISTANCE.at(mode);
@@ -103,7 +127,12 @@ make_modecosting_args(const pbnavitia::DirectPathRequest& request) {
     args.mode = request.streetnetwork_params().origin_mode();
 
     args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = request_params.walking_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = request_params.bike_speed();
+
+    auto bike_speed = request_params.bike_speed();
+    if (args.mode == "bss" && request_params.has_bss_speed()) {
+        bike_speed = request_params.bss_speed();
+    }
+    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
     args.speeds[util::convert_navitia_to_valhalla_costing("car")] = request_params.car_speed();
     args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = request_params.car_no_park_speed();
 
@@ -124,9 +153,12 @@ make_modecosting_args(const pbnavitia::StreetNetworkRoutingMatrixRequest& reques
     args.mode = request.mode();
 
     auto const& request_params = request.streetnetwork_params();
-
+    auto bike_speed = request_params.bike_speed();
+    if (args.mode == "bss" && request_params.has_bss_speed()) {
+        bike_speed = request_params.bss_speed();
+    }
     args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = request_params.walking_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = request_params.bike_speed();
+    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
     args.speeds[util::convert_navitia_to_valhalla_costing("car")] = request_params.car_speed();
     args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = request_params.car_no_park_speed();
 
@@ -169,7 +201,7 @@ struct Finally {
     T t;
     explicit Finally(T t) : t(t){};
     Finally() = delete;
-    Finally(Finally&& f) = default;
+    Finally(Finally&& f) noexcept = default;
     Finally(const Finally&) = delete;
     Finally& operator=(const Finally&) = delete;
     Finally& operator=(Finally&&) = delete;
@@ -261,7 +293,7 @@ pbnavitia::Response Handler::handle_matrix(const pbnavitia::Request& request) {
                                         graph,
                                         mode_costing.get_costing(),
                                         util::convert_navitia_to_valhalla_mode(mode),
-                                        get_distance(mode, request.sn_routing_matrix().max_duration()));
+                                        get_max_distance(mode, request.sn_routing_matrix()));
 
     } else {
         res = matrix.SourceToTarget(valhalla_location_sources,
@@ -269,7 +301,7 @@ pbnavitia::Response Handler::handle_matrix(const pbnavitia::Request& request) {
                                     graph,
                                     mode_costing.get_costing(),
                                     util::convert_navitia_to_valhalla_mode(mode),
-                                    get_distance(mode, request.sn_routing_matrix().max_duration()));
+                                    get_max_distance(mode, request.sn_routing_matrix()));
     }
 
     pbnavitia::Response response;

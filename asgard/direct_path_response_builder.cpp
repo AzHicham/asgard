@@ -403,9 +403,27 @@ pbnavitia::Response build_journey_response(const pbnavitia::Request& request,
     default:
         throw std::runtime_error{"Error when determining mono modal, unknow mode: " + mode};
     };
+
+    if (request.direct_path().clockwise() == false) {
+        recompute_date_times_from_arrival(journey, departure_posix_time);
+    }
+
     compute_metadata(*journey);
     LOG_INFO("Direct path response done with mode: " + mode);
     return response;
+}
+
+void recompute_date_times_from_arrival(pbnavitia::Journey* journey, const time_t arrival_posix_time) {
+    journey->set_departure_date_time(arrival_posix_time - time_t(journey->duration()));
+    journey->set_arrival_date_time(arrival_posix_time);
+    auto last_section_arrival_time = arrival_posix_time;
+    auto sections = journey->mutable_sections();
+    for (auto section_iter = sections->rbegin(); section_iter != sections->rend(); section_iter++) {
+        section_iter->set_end_date_time(last_section_arrival_time);
+        auto begin_date_time = last_section_arrival_time - section_iter->duration();
+        section_iter->set_begin_date_time(begin_date_time);
+        last_section_arrival_time = begin_date_time;
+    }
 }
 
 void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o) {
@@ -511,11 +529,16 @@ void compute_path_items(valhalla::Api& api,
 
     auto& trip_route = *api.mutable_trip()->mutable_routes(0);
     auto& directions_leg = *api.mutable_directions()->mutable_routes(0)->mutable_legs(0);
+    auto& trip_leg = *api.mutable_trip()->mutable_routes(0)->mutable_legs(0);
+    const auto shape = midgard::decode<std::vector<midgard::PointLL>>(trip_leg.shape());
 
     for (auto it = begin_maneuver; it < end_maneuver; ++it) {
         const auto& maneuver = *it;
         auto* path_item = sn->add_path_items();
         auto const& edge = trip_route.mutable_legs(0)->node(maneuver.begin_path_index()).edge();
+
+        auto shape_begin_idx = it->begin_shape_index();
+        const auto& instruction_start_coord = shape[shape_begin_idx];
 
         set_path_item_type(edge, *path_item);
         set_path_item_name(maneuver, *path_item);
@@ -525,6 +548,7 @@ void compute_path_items(valhalla::Api& api,
         if (enable_instruction) {
             bool is_last_maneuver = std::distance(it, directions_leg.maneuver().end()) == 1;
             set_path_item_instruction(maneuver, *path_item, is_last_maneuver);
+            set_path_item_instruction_start_coord(*path_item, instruction_start_coord);
         }
     }
 }
@@ -537,6 +561,14 @@ void set_path_item_instruction(const DirectionsLeg_Maneuver& maneuver, pbnavitia
         }
         path_item.set_instruction(instruction);
     }
+}
+
+void set_path_item_instruction_start_coord(pbnavitia::PathItem& path_item, const valhalla::midgard::PointLL& instruction_start_coord) {
+    if (path_item.instruction().empty()) { return; }
+
+    auto* coord = path_item.mutable_instruction_start_coordinate();
+    coord->set_lat(instruction_start_coord.lat());
+    coord->set_lon(instruction_start_coord.lng());
 }
 
 void set_path_item_name(const DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item) {

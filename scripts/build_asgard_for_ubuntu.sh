@@ -6,7 +6,7 @@ usage() { echo "Usage: $0 -a <path_to_asgard_project>" 1>&2; exit 1; }
 while getopts ":a:b:o:" option; do
     case "${option}" in
         a)
-            asgard_dir=${OPTARG}
+            asgard_dir=`realpath ${OPTARG}`
             ;;
     esac
 done
