@@ -22,6 +22,14 @@ include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/third_party/date/include")
 #
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/third_party/prometheus-cpp/core/include/")
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/third_party/prometheus-cpp/pull/include/")
+
+#
+# curlpp
+#
+include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/third_party/curlpp/include/")
+set(CURLPP_LIBRARIES "${CMAKE_BINARY_DIR}/third_party/curlpp/libcurlpp.a")
+add_subdirectory(third_party/curlpp)
+
 #prometheus-cpp cmake will refuse to build if the CMAKE_INSTALL_PREFIX is empty
 #setting it before will have side effects on how we build packages
 set(ENABLE_PUSH OFF CACHE INTERNAL "" FORCE)

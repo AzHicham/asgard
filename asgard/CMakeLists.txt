@@ -39,7 +39,7 @@ add_library(libasgard
   ${PROTO_SRCS})
 
 add_executable(asgard asgard.cpp)
-target_link_libraries(asgard libasgard config boost_system boost_regex boost_thread boost_filesystem ${BOOST_DEV_LIBS} ${VALHALLA_LIBRARIES} z curl zmq protobuf prometheus-cpp-core prometheus-cpp-pull) #TODO do not hardcode lib name
+target_link_libraries(asgard libasgard config boost_system boost_regex boost_thread boost_filesystem ${BOOST_DEV_LIBS} ${VALHALLA_LIBRARIES} z  curl zmq protobuf prometheus-cpp-core prometheus-cpp-pull ${CURLPP_LIBRARIES}) #TODO do not hardcode lib name
 
 enable_testing()
 

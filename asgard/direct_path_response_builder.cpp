@@ -7,6 +7,13 @@
 #include <valhalla/midgard/pointll.h>
 #include <valhalla/thor/pathinfo.h>
 
+#include <curlpp/Easy.hpp>
+#include <curlpp/Options.hpp>
+#include <curlpp/cURLpp.hpp>
+#include <rapidjson/document.h>
+#include <rapidjson/reader.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include <boost/range/algorithm/find_if.hpp>
 #include <numeric>
 
@@ -29,7 +36,8 @@ void make_bss_streetnetwork_section(pbnavitia::Journey& journey,
                                     const time_t begin_date_time,
                                     const pbnavitia::StreetNetworkParams& request_params,
                                     const size_t nb_sections,
-                                    const bool enable_instructions) {
+                                    const bool enable_instructions,
+                                    const boost::optional<std::string>& valhalla_service_url) {
 
     using BssManeuverType = DirectionsLeg_Maneuver_BssManeuverType;
     auto rent_duration = static_cast<time_t>(request_params.bss_rent_duration());
@@ -88,8 +96,7 @@ void make_bss_streetnetwork_section(pbnavitia::Journey& journey,
     compute_geojson({shape.begin() + shape_begin_idx,
                      shape.begin() + shape_end_idx},
                     *section);
-
-    compute_path_items(api, section->mutable_street_network(), enable_instructions, begin_maneuver, end_maneuver);
+    compute_path_items(api, section->mutable_street_network(), enable_instructions, begin_maneuver, end_maneuver, valhalla_service_url);
 }
 
 void _make_bss_maneuver_section(pbnavitia::Journey& journey,
@@ -172,7 +179,8 @@ void build_mono_modal_journey(pbnavitia::Journey& journey,
                               const pbnavitia::Request& request,
                               const std::vector<valhalla::thor::PathInfo>& pathedges,
                               const TripLeg& trip_leg,
-                              valhalla::Api& api) {
+                              valhalla::Api& api,
+                              const boost::optional<std::string>& valhalla_service_url) {
 
     auto& directions_leg = *api.mutable_directions()->mutable_routes(0)->mutable_legs(0);
     const auto shape = midgard::decode<std::vector<midgard::PointLL>>(trip_leg.shape());
@@ -215,7 +223,7 @@ void build_mono_modal_journey(pbnavitia::Journey& journey,
     section->set_end_date_time(departure_posix_time + section_duration);
 
     compute_geojson(shape, *section);
-    compute_path_items(api, section->mutable_street_network(), enable_instructions, begin_maneuver, end_maneuver);
+    compute_path_items(api, section->mutable_street_network(), enable_instructions, begin_maneuver, end_maneuver, valhalla_service_url);
     journey.set_nb_sections(1);
 }
 
@@ -223,7 +231,8 @@ void build_bss_journey(pbnavitia::Journey& journey,
                        const pbnavitia::Request& request,
                        const std::vector<valhalla::thor::PathInfo>& pathedges,
                        const TripLeg& trip_leg,
-                       valhalla::Api& api) {
+                       valhalla::Api& api,
+                       const boost::optional<std::string>& valhalla_service_url) {
     auto const& request_params = request.direct_path().streetnetwork_params();
 
     auto const shape = midgard::decode<std::vector<midgard::PointLL>>(trip_leg.shape());
@@ -261,7 +270,7 @@ void build_bss_journey(pbnavitia::Journey& journey,
         bss_return_maneuver == directions_leg.maneuver().end()) {
         // No bss maneuvers are found in directions_leg
         // In this case, it's just a walking journey.
-        build_mono_modal_journey(journey, request, pathedges, trip_leg, api);
+        build_mono_modal_journey(journey, request, pathedges, trip_leg, api, valhalla_service_url);
         return;
     }
 
@@ -297,7 +306,8 @@ void build_bss_journey(pbnavitia::Journey& journey,
                                        begin_datetime,
                                        request_params,
                                        nb_sections++,
-                                       enable_instructions);
+                                       enable_instructions,
+                                       valhalla_service_url);
         begin_datetime += last_journey_section_duration(journey);
     }
 
@@ -323,7 +333,8 @@ void build_bss_journey(pbnavitia::Journey& journey,
                                    begin_datetime,
                                    request_params,
                                    nb_sections++,
-                                   enable_instructions);
+                                   enable_instructions,
+                                   valhalla_service_url);
     begin_datetime += last_journey_section_duration(journey);
 
     // return section
@@ -351,7 +362,8 @@ void build_bss_journey(pbnavitia::Journey& journey,
                                        begin_datetime,
                                        request_params,
                                        nb_sections++,
-                                       enable_instructions);
+                                       enable_instructions,
+                                       valhalla_service_url);
     }
     journey.set_nb_sections(nb_sections);
 }
@@ -359,7 +371,8 @@ void build_bss_journey(pbnavitia::Journey& journey,
 pbnavitia::Response build_journey_response(const pbnavitia::Request& request,
                                            const std::vector<valhalla::thor::PathInfo>& pathedges,
                                            const TripLeg& trip_leg,
-                                           valhalla::Api& api) {
+                                           valhalla::Api& api,
+                                           const boost::optional<std::string>& valhalla_service_url) {
     pbnavitia::Response response;
 
     if (pathedges.empty() ||
@@ -395,10 +408,10 @@ pbnavitia::Response build_journey_response(const pbnavitia::Request& request,
     case pbnavitia::StreetNetworkMode::Bike:
     case pbnavitia::StreetNetworkMode::Car:
     case pbnavitia::StreetNetworkMode::Taxi:
-        build_mono_modal_journey(*journey, request, pathedges, trip_leg, api);
+        build_mono_modal_journey(*journey, request, pathedges, trip_leg, api, valhalla_service_url);
         break;
     case pbnavitia::StreetNetworkMode::Bss:
-        build_bss_journey(*journey, request, pathedges, trip_leg, api);
+        build_bss_journey(*journey, request, pathedges, trip_leg, api, valhalla_service_url);
         break;
     default:
         throw std::runtime_error{"Error when determining mono modal, unknow mode: " + mode};
@@ -521,7 +534,8 @@ void compute_path_items(valhalla::Api& api,
                         pbnavitia::StreetNetwork* sn,
                         const bool enable_instruction,
                         ConstManeuverItetator begin_maneuver,
-                        ConstManeuverItetator end_maneuver) {
+                        ConstManeuverItetator end_maneuver,
+                        const boost::optional<std::string>& valhalla_service_url) {
 
     if (!api.has_trip() || !api.has_directions() || begin_maneuver == end_maneuver) {
         return;
@@ -531,6 +545,10 @@ void compute_path_items(valhalla::Api& api,
     auto& directions_leg = *api.mutable_directions()->mutable_routes(0)->mutable_legs(0);
     auto& trip_leg = *api.mutable_trip()->mutable_routes(0)->mutable_legs(0);
     const auto shape = midgard::decode<std::vector<midgard::PointLL>>(trip_leg.shape());
+
+    if (valhalla_service_url.is_initialized() && (sn->mode() == pbnavitia::StreetNetworkMode::Bike || sn->mode() == pbnavitia::StreetNetworkMode::Walking || sn->mode() == pbnavitia::StreetNetworkMode::Bss)) {
+        set_range_height(sn, call_elevation_service(shape, valhalla_service_url.value()).c_str());
+    }
 
     for (auto it = begin_maneuver; it < end_maneuver; ++it) {
         const auto& maneuver = *it;
@@ -602,6 +620,80 @@ void set_path_item_direction(const DirectionsLeg_Maneuver& maneuver, pbnavitia::
         if (turn_degree > 180) turn_degree -= 360;
         path_item.set_direction(turn_degree);
     }
+}
+
+void set_range_height(pbnavitia::StreetNetwork* sn, const char* elevation_response) {
+    rapidjson::Document document;
+
+    if (document.Parse(elevation_response).HasParseError()) {
+        LOG_ERROR("Parsing error");
+    } else {
+        const rapidjson::Value& range_height = document["range_height"];
+
+        if (!range_height.Empty()) {
+            auto* elevation = sn->add_elevations();
+            elevation->set_distance_from_start(range_height[0][0].GetDouble());
+            elevation->set_elevation(range_height[0][1].GetDouble());
+
+            for (rapidjson::SizeType i = 1; i < range_height.Size(); i++) {
+                if (range_height[i - 1][1] != range_height[i][1]) {
+                    auto* elevation = sn->add_elevations();
+                    elevation->set_distance_from_start(range_height[i][0].GetDouble());
+                    elevation->set_elevation(range_height[i][1].GetDouble());
+                    elevation->set_geojson_index(i);
+                }
+            }
+        }
+    }
+}
+
+std::string call_elevation_service(std::vector<valhalla::midgard::PointLL> shape, std::string valhalla_service_url) {
+    try {
+        curlpp::Cleanup cleanup;
+        {
+            std::ostringstream os;
+            std::string elevation_request = build_elevation_request(shape);
+            std::string service_response;
+            os << curlpp::options::Url("http://" + valhalla_service_url + "/height?json=" + elevation_request);
+            service_response = os.str();
+            return service_response;
+        }
+    }
+
+    catch (curlpp::RuntimeError& e) {
+        LOG_ERROR(e.what());
+        return e.what();
+    }
+
+    catch (curlpp::LogicError& e) {
+        LOG_ERROR(e.what());
+        return e.what();
+    }
+}
+
+std::string build_elevation_request(std::vector<valhalla::midgard::PointLL> shape) {
+    rapidjson::StringBuffer s;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    writer.StartObject();
+    writer.Key("range");
+    writer.Bool(true);
+    writer.Key("shape");
+    writer.StartArray();
+
+    for (const auto& point : shape) {
+        writer.StartObject();
+        writer.Key("lat");
+        writer.SetMaxDecimalPlaces(6);
+        writer.Double(point.lat());
+        writer.Key("lon");
+        writer.SetMaxDecimalPlaces(6);
+        writer.Double(point.lng());
+        writer.EndObject();
+    }
+
+    writer.EndArray();
+    writer.EndObject();
+    return s.GetString();
 }
 
 } // namespace direct_path_response_builder

@@ -34,12 +34,14 @@ struct Context {
     valhalla::baldr::GraphReader& graph;
     const Metrics& metrics;
     const Projector& projector;
+    boost::optional<std::string>& valhalla_service_url;
 
     Context(zmq::context_t& zmq_context, valhalla::baldr::GraphReader& graph,
-            const Metrics& metrics, const Projector& projector) : zmq_context(zmq_context),
-                                                                  graph(graph),
-                                                                  metrics(metrics),
-                                                                  projector(projector) {}
+            const Metrics& metrics, const Projector& projector, boost::optional<std::string>& valhalla_service_url) : zmq_context(zmq_context),
+                                                                                                                      graph(graph),
+                                                                                                                      metrics(metrics),
+                                                                                                                      projector(projector),
+                                                                                                                      valhalla_service_url(valhalla_service_url) {}
 };
 
 } // namespace asgard

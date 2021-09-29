@@ -105,7 +105,8 @@ int main() {
         threads.create_thread(std::bind(&worker, asgard::Context(context,
                                                                  graph,
                                                                  metrics,
-                                                                 projector)));
+                                                                 projector,
+                                                                 asgard_conf.valhalla_service_url)));
     }
 
     // Connect worker threads to client threads via a queue
