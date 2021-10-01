@@ -53,8 +53,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         pbnavitia::Request request;
         valhalla::TripLeg trip_leg;
         valhalla::Api api;
-        std::string valhalla_service_url;
-        auto response = build_journey_response(request, {}, trip_leg, api, valhalla_service_url);
+        auto response = build_journey_response(request, {}, trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::NO_SOLUTION);
         BOOST_CHECK_EQUAL(response.journeys_size(), 0);
     }
@@ -67,14 +66,13 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         params->set_origin_mode("car");
 
         valhalla::Api api;
-        std::string valhalla_service_url;
         std::vector<thor::PathInfo> path_info_list = create_path_info_list();
         request.mutable_direct_path()->set_datetime(1470241573);
         request.mutable_direct_path()->set_clockwise(true);
 
         auto trip_leg = create_trip_leg(api);
 
-        auto response = build_journey_response(request, path_info_list, *trip_leg, api, valhalla_service_url);
+        auto response = build_journey_response(request, path_info_list, *trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::ITINERARY_FOUND);
         BOOST_CHECK_EQUAL(response.journeys_size(), 1);
 
@@ -116,15 +114,13 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         params->set_origin_mode("car");
 
         valhalla::Api api;
-        std::string valhalla_service_url;
-        ;
         std::vector<thor::PathInfo> path_info_list = create_path_info_list();
         request.mutable_direct_path()->set_datetime(1470241573);
         request.mutable_direct_path()->set_clockwise(false);
 
         auto trip_leg = create_trip_leg(api);
 
-        auto response = build_journey_response(request, path_info_list, *trip_leg, api, valhalla_service_url);
+        auto response = build_journey_response(request, path_info_list, *trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::ITINERARY_FOUND);
         BOOST_CHECK_EQUAL(response.journeys_size(), 1);
 
@@ -243,12 +239,11 @@ BOOST_AUTO_TEST_CASE(compute_path_items_test) {
     {
         Api api;
         auto sn = pbnavitia::StreetNetwork();
-        std::string valhalla_service_url;
 
         compute_path_items(api, &sn, true,
                            static_cast<ConstManeuverItetator>(nullptr),
                            static_cast<ConstManeuverItetator>(nullptr),
-                           valhalla_service_url);
+                           boost::none);
 
         BOOST_CHECK_EQUAL(sn.path_items_size(), 0);
     }

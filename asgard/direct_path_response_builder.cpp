@@ -7,11 +7,9 @@
 #include <valhalla/midgard/pointll.h>
 #include <valhalla/thor/pathinfo.h>
 
-#include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
 #include <curlpp/cURLpp.hpp>
 #include <rapidjson/document.h>
-#include <rapidjson/reader.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <boost/range/algorithm/find_if.hpp>
@@ -546,8 +544,14 @@ void compute_path_items(valhalla::Api& api,
     auto& trip_leg = *api.mutable_trip()->mutable_routes(0)->mutable_legs(0);
     const auto shape = midgard::decode<std::vector<midgard::PointLL>>(trip_leg.shape());
 
-    if (valhalla_service_url.is_initialized() && (sn->mode() == pbnavitia::StreetNetworkMode::Bike || sn->mode() == pbnavitia::StreetNetworkMode::Walking || sn->mode() == pbnavitia::StreetNetworkMode::Bss)) {
-        set_range_height(sn, call_elevation_service(shape, valhalla_service_url.value()).c_str());
+    if (valhalla_service_url && (sn->mode() == pbnavitia::StreetNetworkMode::Bike || sn->mode() == pbnavitia::StreetNetworkMode::Walking || sn->mode() == pbnavitia::StreetNetworkMode::Bss)) {
+        try {
+            set_range_height(sn, call_elevation_service(shape, valhalla_service_url.value()).c_str());
+        } catch (curlpp::RuntimeError& e) {
+            LOG_ERROR(e.what());
+        } catch (curlpp::LogicError& e) {
+            LOG_ERROR(e.what());
+        }
     }
 
     for (auto it = begin_maneuver; it < end_maneuver; ++it) {
@@ -627,51 +631,38 @@ void set_range_height(pbnavitia::StreetNetwork* sn, const char* elevation_respon
 
     if (document.Parse(elevation_response).HasParseError()) {
         LOG_ERROR("Parsing error");
-    } else {
-        const rapidjson::Value& range_height = document["range_height"];
+        return;
+    }
 
-        if (!range_height.Empty()) {
-            auto* elevation = sn->add_elevations();
-            elevation->set_distance_from_start(range_height[0][0].GetDouble());
-            elevation->set_elevation(range_height[0][1].GetDouble());
+    const rapidjson::Value& range_height = document["range_height"];
 
-            for (rapidjson::SizeType i = 1; i < range_height.Size(); i++) {
-                if (range_height[i - 1][1] != range_height[i][1]) {
-                    auto* elevation = sn->add_elevations();
-                    elevation->set_distance_from_start(range_height[i][0].GetDouble());
-                    elevation->set_elevation(range_height[i][1].GetDouble());
-                    elevation->set_geojson_index(i);
-                }
+    if (!range_height.Empty()) {
+        auto* elevation = sn->add_elevations();
+        elevation->set_distance_from_start(range_height[0][0].GetDouble());
+        elevation->set_elevation(range_height[0][1].GetDouble());
+
+        for (rapidjson::SizeType i = 1; i < range_height.Size(); i++) {
+            if (range_height[i - 1][1] != range_height[i][1]) {
+                auto* elevation = sn->add_elevations();
+                elevation->set_distance_from_start(range_height[i][0].GetDouble());
+                elevation->set_elevation(range_height[i][1].GetDouble());
+                elevation->set_geojson_index(i);
             }
         }
     }
 }
 
-std::string call_elevation_service(std::vector<valhalla::midgard::PointLL> shape, std::string valhalla_service_url) {
-    try {
-        curlpp::Cleanup cleanup;
-        {
-            std::ostringstream os;
-            std::string elevation_request = build_elevation_request(shape);
-            std::string service_response;
-            os << curlpp::options::Url("http://" + valhalla_service_url + "/height?json=" + elevation_request);
-            service_response = os.str();
-            return service_response;
-        }
-    }
-
-    catch (curlpp::RuntimeError& e) {
-        LOG_ERROR(e.what());
-        return e.what();
-    }
-
-    catch (curlpp::LogicError& e) {
-        LOG_ERROR(e.what());
-        return e.what();
-    }
+std::string call_elevation_service(const std::vector<valhalla::midgard::PointLL>& shape, const std::string& valhalla_service_url) {
+    curlpp::Cleanup cleanup;
+    std::ostringstream os;
+    std::string elevation_request = build_elevation_request(shape);
+    std::string service_response;
+    os << curlpp::options::Url(valhalla_service_url + "/height?json=" + elevation_request);
+    service_response = os.str();
+    return service_response;
 }
 
-std::string build_elevation_request(std::vector<valhalla::midgard::PointLL> shape) {
+std::string build_elevation_request(const std::vector<valhalla::midgard::PointLL>& shape) {
     rapidjson::StringBuffer s;
     rapidjson::Writer<rapidjson::StringBuffer> writer(s);
     writer.StartObject();

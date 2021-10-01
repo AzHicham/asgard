@@ -57,8 +57,8 @@ void set_path_item_instruction(const valhalla::DirectionsLeg_Maneuver& maneuver,
 void set_path_item_instruction_start_coord(pbnavitia::PathItem& path_item, const valhalla::midgard::PointLL& instruction_start_coord);
 
 void set_range_height(pbnavitia::StreetNetwork* sn, const char* elevation_response);
-std::string call_elevation_service(std::vector<valhalla::midgard::PointLL> shape, std::string valhalla_service_url);
-std::string build_elevation_request(std::vector<valhalla::midgard::PointLL> shape);
+std::string call_elevation_service(const std::vector<valhalla::midgard::PointLL>& shape, const std::string& valhalla_service_url);
+std::string build_elevation_request(const std::vector<valhalla::midgard::PointLL>& shape);
 
 } // namespace direct_path_response_builder
 } // namespace asgard
