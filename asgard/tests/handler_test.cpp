@@ -50,7 +50,8 @@ BOOST_AUTO_TEST_CASE(handle_matrix_test) {
     boost::property_tree::ptree conf;
     conf.put("tile_dir", maker.get_tile_dir());
     valhalla::baldr::GraphReader graph(conf);
-    Context c{context, graph, metrics, projector};
+    boost::optional<std::string> valhalla_service_url;
+    Context c{context, graph, metrics, projector, valhalla_service_url};
 
     Handler h{c};
 
@@ -127,7 +128,8 @@ BOOST_AUTO_TEST_CASE(handle_direct_path_trivial_test) {
     boost::property_tree::ptree conf;
     conf.put("tile_dir", maker.get_tile_dir());
     valhalla::baldr::GraphReader graph(conf);
-    Context c{context, graph, metrics, projector};
+    boost::optional<std::string> valhalla_service_url;
+    Context c{context, graph, metrics, projector, valhalla_service_url};
 
     Handler h{c};
 
@@ -212,7 +214,8 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_test) {
     boost::property_tree::ptree conf;
     conf.put("tile_dir", maker.get_tile_dir());
     valhalla::baldr::GraphReader graph(conf);
-    Context c{context, graph, metrics, projector};
+    boost::optional<std::string> valhalla_service_url;
+    Context c{context, graph, metrics, projector, valhalla_service_url};
 
     Handler h{c};
 
@@ -256,7 +259,8 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_with_maneuver_duration_test) {
     boost::property_tree::ptree conf;
     conf.put("tile_dir", maker.get_tile_dir());
     valhalla::baldr::GraphReader graph(conf);
-    Context c{context, graph, metrics, projector};
+    boost::optional<std::string> valhalla_service_url;
+    Context c{context, graph, metrics, projector, valhalla_service_url};
 
     Handler h{c};
 
@@ -305,7 +309,8 @@ BOOST_AUTO_TEST_CASE(handle_trivial_BSS_counterclockwise_with_maneuver_duration_
     boost::property_tree::ptree conf;
     conf.put("tile_dir", maker.get_tile_dir());
     valhalla::baldr::GraphReader graph(conf);
-    Context c{context, graph, metrics, projector};
+    boost::optional<std::string> valhalla_service_url;
+    Context c{context, graph, metrics, projector, valhalla_service_url};
 
     Handler h{c};
 
@@ -355,7 +360,8 @@ BOOST_AUTO_TEST_CASE(handle_bss_matrix_test) {
     boost::property_tree::ptree conf;
     conf.put("tile_dir", maker.get_tile_dir());
     valhalla::baldr::GraphReader graph(conf);
-    Context c{context, graph, metrics, projector};
+    boost::optional<std::string> valhalla_service_url;
+    Context c{context, graph, metrics, projector, valhalla_service_url};
 
     Handler h{c};
 

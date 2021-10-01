@@ -31,7 +31,8 @@ namespace direct_path_response_builder {
 pbnavitia::Response build_journey_response(const pbnavitia::Request& request,
                                            const std::vector<valhalla::thor::PathInfo>& pathedges,
                                            const valhalla::TripLeg& trip_leg,
-                                           valhalla::Api& api);
+                                           valhalla::Api& api,
+                                           const boost::optional<std::string>& valhalla_service_url);
 
 using ConstManeuverItetator = google::protobuf::RepeatedPtrField<valhalla::DirectionsLeg_Maneuver>::const_iterator;
 
@@ -44,7 +45,8 @@ void compute_path_items(valhalla::Api& api,
                         pbnavitia::StreetNetwork* sn,
                         const bool enable_instruction,
                         ConstManeuverItetator begin_maneuver,
-                        ConstManeuverItetator end_maneuver);
+                        ConstManeuverItetator end_maneuver,
+                        const boost::optional<std::string>& valhalla_service_url);
 
 void set_path_item_name(const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item);
 void set_path_item_length(const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item);
@@ -53,6 +55,10 @@ void set_path_item_duration(const valhalla::DirectionsLeg_Maneuver& maneuver, pb
 void set_path_item_direction(const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item);
 void set_path_item_instruction(const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item, const bool is_last_maneuver);
 void set_path_item_instruction_start_coord(pbnavitia::PathItem& path_item, const valhalla::midgard::PointLL& instruction_start_coord);
+
+void set_range_height(pbnavitia::StreetNetwork* sn, const char* elevation_response);
+std::string call_elevation_service(const std::vector<valhalla::midgard::PointLL>& shape, const std::string& valhalla_service_url);
+std::string build_elevation_request(const std::vector<valhalla::midgard::PointLL>& shape);
 
 } // namespace direct_path_response_builder
 } // namespace asgard

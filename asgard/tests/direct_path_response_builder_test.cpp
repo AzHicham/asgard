@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         pbnavitia::Request request;
         valhalla::TripLeg trip_leg;
         valhalla::Api api;
-        auto response = build_journey_response(request, {}, trip_leg, api);
+        auto response = build_journey_response(request, {}, trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::NO_SOLUTION);
         BOOST_CHECK_EQUAL(response.journeys_size(), 0);
     }
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
 
         auto trip_leg = create_trip_leg(api);
 
-        auto response = build_journey_response(request, path_info_list, *trip_leg, api);
+        auto response = build_journey_response(request, path_info_list, *trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::ITINERARY_FOUND);
         BOOST_CHECK_EQUAL(response.journeys_size(), 1);
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
 
         auto trip_leg = create_trip_leg(api);
 
-        auto response = build_journey_response(request, path_info_list, *trip_leg, api);
+        auto response = build_journey_response(request, path_info_list, *trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::ITINERARY_FOUND);
         BOOST_CHECK_EQUAL(response.journeys_size(), 1);
 
@@ -242,7 +242,8 @@ BOOST_AUTO_TEST_CASE(compute_path_items_test) {
 
         compute_path_items(api, &sn, true,
                            static_cast<ConstManeuverItetator>(nullptr),
-                           static_cast<ConstManeuverItetator>(nullptr));
+                           static_cast<ConstManeuverItetator>(nullptr),
+                           boost::none);
 
         BOOST_CHECK_EQUAL(sn.path_items_size(), 0);
     }
@@ -400,5 +401,16 @@ BOOST_AUTO_TEST_CASE(set_path_item_instruction_start_coord_test) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(set_range_height_test) {
+    pbnavitia::StreetNetwork sn;
+    const char* elevation_response = R"({"shape": [{"lat": 48.660839,"lon": 2.345343},{"lat": 48.660831,"lon": 2.345376},{"lat": 48.66066,"lon": 2.346007}],"range_height": [[0,75],[3,75],[53,77]]})";
+    set_range_height(&sn, elevation_response);
+    BOOST_CHECK_EQUAL(sn.elevations(0).distance_from_start(), 0);
+    BOOST_CHECK_EQUAL(sn.elevations(0).elevation(), 75);
+    BOOST_CHECK_EQUAL(sn.elevations(0).geojson_index(), 0);
+    BOOST_CHECK_EQUAL(sn.elevations(1).distance_from_start(), 53);
+    BOOST_CHECK_EQUAL(sn.elevations(1).elevation(), 77);
+    BOOST_CHECK_EQUAL(sn.elevations(1).geojson_index(), 2);
+}
 } // namespace direct_path_response_builder
 } // namespace asgard

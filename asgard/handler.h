@@ -67,6 +67,7 @@ private:
     ModeCosting mode_costing;
     const Metrics& metrics;
     const Projector& projector;
+    const boost::optional<std::string>& valhalla_service_url;
 };
 
 } // namespace asgard

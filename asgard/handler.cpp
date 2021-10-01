@@ -223,7 +223,8 @@ Finally<T> make_finally(T&& t) {
 
 Handler::Handler(const Context& context) : graph(context.graph),
                                            metrics(context.metrics),
-                                           projector(context.projector) {
+                                           projector(context.projector),
+                                           valhalla_service_url(context.valhalla_service_url) {
 }
 
 pbnavitia::Response Handler::handle(const pbnavitia::Request& request) {
@@ -429,7 +430,7 @@ pbnavitia::Response Handler::handle_direct_path(const pbnavitia::Request& reques
     api.mutable_options()->set_language(request.direct_path().streetnetwork_params().language());
     odin::DirectionsBuilder::Build(api);
 
-    const auto response = direct_path_response_builder::build_journey_response(request, pathedges, *trip_leg, api);
+    const auto response = direct_path_response_builder::build_journey_response(request, pathedges, *trip_leg, api, valhalla_service_url);
 
     auto duration = pt::microsec_clock::universal_time() - start;
     metrics.observe_handle_direct_path(mode, duration.total_milliseconds() / 1000.0);
