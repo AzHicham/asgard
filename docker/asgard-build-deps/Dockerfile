@@ -2,6 +2,8 @@ FROM ubuntu:20.04
 
 # Now, go through and install the build dependencies
 RUN apt-get update --assume-yes
+RUN apt-get install --yes --quiet software-properties-common
+RUN add-apt-repository -y ppa:valhalla-core/valhalla
 RUN env DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet \
     autoconf \
     automake \
@@ -23,6 +25,7 @@ RUN env DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet \
     libgeos-dev \
     libluajit-5.1-dev \
     liblz4-dev \
+    libprime-server-dev \
     libprotobuf-dev \
     libspatialite-dev \
     libsqlite3-dev \
@@ -35,6 +38,7 @@ RUN env DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet \
     osmium-tool \
     parallel \
     pkg-config \
+    prime-server-bin \
     protobuf-compiler \
     python-all-dev \
     python3-all-dev \
@@ -55,7 +59,7 @@ RUN git clone https://github.com/valhalla/valhalla.git libvalhalla \
 
 RUN mkdir -p libvalhalla/build \
   && cd libvalhalla/build \
-  && cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_SERVICES=Off -DENABLE_NODE_BINDINGS=Off -DENABLE_PYTHON_BINDINGS=Off \
+  && cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_SERVICES=On -DENABLE_NODE_BINDINGS=Off -DENABLE_PYTHON_BINDINGS=Off \
               -DBUILD_SHARED_LIBS=Off -DBoost_USE_STATIC_LIBS=ON -DENABLE_THREAD_SAFE_TILE_REF_COUNT=On\
   && make -j$(nproc) install && ldconfig
 
