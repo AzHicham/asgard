@@ -401,5 +401,16 @@ BOOST_AUTO_TEST_CASE(set_path_item_instruction_start_coord_test) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(set_range_height_test) {
+    pbnavitia::StreetNetwork sn;
+    const char* elevation_response = R"({"shape": [{"lat": 48.660839,"lon": 2.345343},{"lat": 48.660831,"lon": 2.345376},{"lat": 48.66066,"lon": 2.346007}],"range_height": [[0,75],[3,75],[53,77]]})";
+    set_range_height(&sn, elevation_response);
+    BOOST_CHECK_EQUAL(sn.elevations(0).distance_from_start(), 0);
+    BOOST_CHECK_EQUAL(sn.elevations(0).elevation(), 75);
+    BOOST_CHECK_EQUAL(sn.elevations(0).geojson_index(), 0);
+    BOOST_CHECK_EQUAL(sn.elevations(1).distance_from_start(), 53);
+    BOOST_CHECK_EQUAL(sn.elevations(1).elevation(), 77);
+    BOOST_CHECK_EQUAL(sn.elevations(1).geojson_index(), 2);
+}
 } // namespace direct_path_response_builder
 } // namespace asgard
