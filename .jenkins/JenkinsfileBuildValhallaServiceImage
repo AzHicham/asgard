@@ -39,7 +39,7 @@ pipeline {
         failure {
             withCredentials([string(credentialsId: 'navitia_core_team_slack_chan', variable: 'NAVITIA_CORE_TEAM_SLACK_CHAN')]) {
                 sh '''
-                    curl -X POST -H 'Content-type: application/json' --data '{"text":":warning: Asgard data docker failed. See https://jenkins-core.canaltp.fr/job/build-asgard-data/"}' $NAVITIA_CORE_TEAM_SLACK_CHAN
+                    curl -X POST -H 'Content-type: application/json' --data '{"text":":warning: Asgard valhalla service docker failed. See https://jenkins-core.canaltp.fr/job/build-asgard-valhalla-service/"}' $NAVITIA_CORE_TEAM_SLACK_CHAN
                 '''
             }
         }
