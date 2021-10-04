@@ -27,9 +27,7 @@ build-deps-image: ## Build Asgard deps image
 
 build-asgard-valhalla-service-image: ## Build valhalla_service image, used for extra service(ex: elevation)
 	$(info Building Valhalla service image)
-	cd asgard/docker && \
-	docker build -t navitia/asgard-valhalla-service:${TAG} . --no-cache
-
+	docker build -f docker/asgard-valhalla-service/Dockerfile -t navitia/asgard-valhalla-service:${TAG} . --no-cache
 	
 docker-login: ## Login Docker, DOCKERHUB_USER, DOCKERHUB_PWD, REGISTRY_HOST must be provided
 	$(info Login Docker)
