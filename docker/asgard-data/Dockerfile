@@ -41,6 +41,7 @@ FROM alpine:latest
 # We have to create a group and a user with the same gid and uid than the docker-app
 RUN addgroup -S asgard-user --gid 1234 && adduser -S asgard-user -G asgard-user --uid 1234
 COPY --from=builder /data/valhalla/valhalla_tiles.tar /data/valhalla/
+COPY --from=builder /data/valhalla/elevation_tiles /data/valhalla/elevation_tiles
 COPY --from=builder /data/valhalla/valhalla.json /data/valhalla/
 COPY --from=builder /data/valhalla/healthcheck.sh /data/valhalla/
 RUN chown -R asgard-user:asgard-user /data/valhalla
