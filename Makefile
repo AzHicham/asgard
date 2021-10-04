@@ -25,6 +25,12 @@ build-deps-image: ## Build Asgard deps image
 	$(info Building Asgard app image from master)
 	docker build -f docker/asgard-build-deps/Dockerfile -t navitia/asgard-build-deps:${TAG} . --no-cache
 
+build-asgard-valhalla-service-image: ## Build valhalla_service image, used for extra service(ex: elevation)
+	$(info Building Valhalla service image)
+	cd asgard/docker && \
+	docker build -t navitia/asgard-valhalla-service:${TAG} . --no-cache
+
+	
 docker-login: ## Login Docker, DOCKERHUB_USER, DOCKERHUB_PWD, REGISTRY_HOST must be provided
 	$(info Login Docker)
 	echo ${DOCKERHUB_PWD} | docker login --username ${DOCKERHUB_USER} --password-stdin ${REGISTRY_HOST}
@@ -53,6 +59,11 @@ push-deps-image: ## Push deps-image to dockerhub
 push-data-image: ## Push data-image to dockerhub, TAG must be provided 
 	$(info Push data-image to intern: ${REGISTRY_HOST})
 	[ "${REGISTRY_HOST}" ] && docker tag navitia/asgard-data:${TAG} ${REGISTRY_HOST}/navitia/asgard-data:${TAG} && docker push ${REGISTRY_HOST}/navitia/asgard-data:${TAG} || echo "REGISTRY_HOST is empty"
+
+push-valhalla-service-image: ## Push data-image to dockerhub, TAG must be provided 
+	$(info Push data-image to intern: ${REGISTRY_HOST})
+	[ "${REGISTRY_HOST}" ] && docker tag navitia/asgard-valhalla-service:${TAG} ${REGISTRY_HOST}/navitia/asgard-valhalla-service:${TAG} && docker push ${REGISTRY_HOST}/navitia/asgard-valhalla-service:${TAG}  || echo "REGISTRY_HOST is empty"
+
 
 wipe-useless-images: ## Remove all useless images
 	$(info Remove useless images)
