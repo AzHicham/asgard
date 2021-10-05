@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    parameters { 
+        string(name: 'branch_name', defaultValue: 'master', description: 'branch name')
+        string(name: 'registry_intern', defaultValue: 'docker-registry.canaltp.fr', description: 'registry intern')
+    }
+    stages {
+         stage('Build Valhalla Service Image') {
+            steps {
+                sh 'echo "Build with branch name" ${branch_name}'
+                sh "git fetch --tags"
+                sh "make build-asgard-valhalla-service-image TAG=`make get-app-${params.branch_name}-tag`"
+            }
+        }
+	stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'core-ci-registry-access', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh "make docker-login DOCKERHUB_USER=${USERNAME} DOCKERHUB_PWD=${PASSWORD} REGISTRY_HOST=${params.registry_intern}"
+                }
+            }
+        }
+	stage('Push Asgard App Image to Intern') {
+	    steps {
+		sh "echo 'Push docker with tag:' \"${params.registry_intern}\""
+		sh "make push-valhalla-service-image TAG=`make get-app-${branch_name}-tag` REGISTRY_HOST=${params.registry_intern}"
+	    }
+	}
+        stage('Remove useless images') {
+            steps {
+                sh 'echo "Clean docker images"'
+                sh "make wipe-useless-images"
+            }
+        }
+    }
+    post {
+        always {
+            deleteDir()
+        }
+        failure {
+            withCredentials([string(credentialsId: 'navitia_core_team_slack_chan', variable: 'NAVITIA_CORE_TEAM_SLACK_CHAN')]) {
+                sh '''
+                    curl -X POST -H 'Content-type: application/json' --data '{"text":":warning: Asgard valhalla service docker failed. See https://jenkins-core.canaltp.fr/job/build-asgard-valhalla-service/"}' $NAVITIA_CORE_TEAM_SLACK_CHAN
+                '''
+            }
+        }
+    }
+}
+

@@ -2,9 +2,9 @@ pipeline {
     agent any
     parameters { 
         // Parameters for Data Image
-        string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/france-latest.osm.pbf', description: 'osm pbf url')
-        string(name: 'DATA_IMAGE_TAG', defaultValue : 'france', description: 'data image tag')
-        string(name: 'ELEVATION_BBOX', defaultValue : '-5.1972 8.3483 42.2646 51.1116', description: 'elevation bounding box, default value is for france')
+        string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/france-latest.osm.pbf https://download.geofabrik.de/europe/spain-latest.osm.pbf', description: 'osm pbf url')
+        string(name: 'DATA_IMAGE_TAG', defaultValue : 'europe', description: 'data image tag')
+        string(name: 'ELEVATION_BBOX', defaultValue : '-10.08 8.34 35.81 51.28', description: 'elevation bounding box, default value is for europe')
 	string(name: 'registry_intern', defaultValue: 'docker-registry.canaltp.fr', description: 'registry intern')
     }
     stages {
