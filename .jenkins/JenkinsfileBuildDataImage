@@ -1,22 +1,24 @@
 pipeline {
-    agent {
-        docker {
-            image 'valhalla/valhalla:run-3.1.2'
-            reuseNode true
-        }
-    }
+    agent any
     parameters {
         // Parameters for Data Image
-        string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/france-latest.osm.pbf https://download.geofabrik.de/europe/spain-latest.osm.pbf', description: 'osm pbf url')
+        string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/andorra-latest.osm.pbf', description: 'osm pbf url')
         string(name: 'DATA_IMAGE_TAG', defaultValue : 'europe', description: 'data image tag')
         string(name: 'DATA_IMAGE_VERSION', defaultValue : 'v1', description: 'data image version')
         string(name: 'ELEVATION_BBOX', defaultValue : '-10.08 8.34 35.81 51.28', description: 'elevation bounding box, default value is for europe')
+	    string(name: 'registry_intern', defaultValue: 'docker-registry.canaltp.fr', description: 'registry intern')
     }
     options {
         ansiColor('xterm')
     }
     stages {
         stage('Download pbf') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-3.1.2'
+                    reuseNode true
+                }
+            }
             steps {
                 sh 'mkdir osmpbf'
                 dir('osmpbf') {
@@ -25,6 +27,12 @@ pipeline {
             }
         }
         stage('Valhalla build config') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-3.1.2'
+                    reuseNode true
+                }
+            }
             steps {
                 sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --mjolnir-tile-extract ${PWD}/valhalla_tiles.tar --mjolnir-timezone ${PWD}/valhalla_tiles/timezones.sqlite --mjolnir-admin ${PWD}/valhalla_tiles/admins.sqlite --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
                 sh """
@@ -37,11 +45,23 @@ pipeline {
             }
         }
         stage('Valhalla build elevation') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-3.1.2'
+                    reuseNode true
+                }
+            }
             steps {
                 sh 'valhalla_build_elevation $ELEVATION_BBOX ${PWD}/elevation_tiles $(nproc)'
             }
         }
         stage('Valhalla build tiles') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-3.1.2'
+                    reuseNode true
+                }
+            }
             steps {
                 sh 'valhalla_build_tiles -c valhalla.json `find ${PWD}/osmpbf -type f`'
                 sh """
@@ -52,28 +72,29 @@ pipeline {
             }
         }
         stage('Upload to minio') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-3.1.2'
+                    reuseNode true
+                    args '-u root'
+                }
+            }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'minio-asgard', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
+                //withCredentials([usernamePassword(credentialsId: 'minio-asgard', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
                     dir("./scripts/") {
                         sh """
-                        pip3 install minio
-                        python3 ./minio_upload.py -k $MINIO_USER -s $MINIO_PSWD -H 127.0.0.1:9000 -b asgard -f ./valhalla_tiles.tar ./valhalla.json -c $DATA_IMAGE_TAG -v $DATA_IMAGE_VERSION
+                        apt update && apt install -y python3-pip
+                        python3 -m pip install minio
+                        #python3 ./minio_upload.py -k $MINIO_USER -s $MINIO_PSWD -H 127.0.0.1:9000 -b asgard -f ./valhalla_tiles.tar ./valhalla.json -c $DATA_IMAGE_TAG -v $DATA_IMAGE_VERSION
                         """
                     }
-                }
+                //}
             }
         }
     }
     post {
         always {
             deleteDir()
-        }
-        failure {
-            withCredentials([string(credentialsId: 'navitia_core_team_slack_chan', variable: 'NAVITIA_CORE_TEAM_SLACK_CHAN')]) {
-                sh '''
-                    curl -X POST -H 'Content-type: application/json' --data '{"text":":warning: Asgard data docker failed. See https://jenkins-core.canaltp.fr/job/build-asgard-data/"}' $NAVITIA_CORE_TEAM_SLACK_CHAN
-                '''
-            }
         }
     }
 }
