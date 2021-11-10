@@ -3,10 +3,10 @@ pipeline {
     parameters {
         // Parameters for Data Image
         string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/andorra-latest.osm.pbf', description: 'osm pbf url')
-        string(name: 'DATA_IMAGE_TAG', defaultValue : 'europe', description: 'data image tag')
-        string(name: 'DATA_IMAGE_VERSION', defaultValue : 'v1', description: 'data image version')
+        string(name: 'COVERAGE', defaultValue : 'europe', description: 'data image tag')
+        string(name: 'VALHALLA_VERSION', defaultValue : '3.1.2', description: 'data image version')
         string(name: 'ELEVATION_BBOX', defaultValue : '-10.08 8.34 35.81 51.28', description: 'elevation bounding box, default value is for europe')
-	    string(name: 'registry_intern', defaultValue: 'docker-registry.canaltp.fr', description: 'registry intern')
+        string(name: 'MINIO_HOST', defaultValue: 'minio-asgard.canaltp.fr', description: 'minio intern')
     }
     options {
         ansiColor('xterm')
@@ -15,7 +15,7 @@ pipeline {
         stage('Download pbf') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-3.1.2'
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -29,7 +29,7 @@ pipeline {
         stage('Valhalla build config') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-3.1.2'
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -47,7 +47,7 @@ pipeline {
         stage('Valhalla build elevation') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-3.1.2'
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -58,7 +58,7 @@ pipeline {
         stage('Valhalla build tiles') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-3.1.2'
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -74,7 +74,7 @@ pipeline {
         stage('Upload to minio') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-3.1.2'
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
                     reuseNode true
                     args '-u root'
                 }
@@ -85,7 +85,7 @@ pipeline {
                         sh """
                         apt update && apt install -y python3-pip
                         python3 -m pip install minio
-                        #python3 ./minio_upload.py -k $MINIO_USER -s $MINIO_PSWD -H 127.0.0.1:9000 -b asgard -f ./valhalla_tiles.tar ./valhalla.json -c $DATA_IMAGE_TAG -v $DATA_IMAGE_VERSION
+                        #python3 ./minio_upload.py -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -f ./valhalla_tiles.tar ./valhalla.json -c ${COVERAGE} -v ${VALHALLA_VERSION}
                         """
                     }
                 //}

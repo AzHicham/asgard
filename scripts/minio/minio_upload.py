@@ -1,40 +1,52 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import glob
 import argparse
+import sys
 import time
 import io
-from datetime import datetime, timedelta
+from collections import OrderedDict
+from parse import *
+from datetime import datetime
+from minio_progress import Progress
 from minio import Minio
 from minio.deleteobjects import DeleteObject
 from minio.commonconfig import Tags
 from minio.error import MinioException
 from minio.retention import Retention, GOVERNANCE
 from os.path import relpath, abspath
+from minio_common import *
 
+# Remove oldest data but keep at least 2 versions
+def get_oldest_data(objects):
+    global FORMAT_STR
+    dict = OrderedDict()
+    for obj in objects:
+        format_string = FORMAT_STR
+        list_str = parse(format_string, obj.object_name)
+        dt = datetime.strptime(list_str[4], "%Y-%m-%d-%H:%M:%S")
+        if dt in dict:
+            (dict[dt]).append(obj.object_name)
+        else:
+            dict[dt] = [obj.object_name]
+    if len(dict) > 2:
+        _, list = next(iter(dict.items()))
+        return list
+    else:
+        return []
 
-def upload(client, bucket, base_name, filename, retention_date, tags=None):
-    """
-    """
-
-    result = client.fput_object(
-        bucket, base_name, filename,
-        tags=tags,
-        #retention=Retention(GOVERNANCE, retention_date),
-        #legal_hold=True,
+def upload(client, bucket, minio_filepath, input_filepath, tags=None):
+    object = client.fput_object(
+        bucket, minio_filepath, input_filepath,
+        tags=tags, progress=Progress(),
     )
-
-    return result
-
+    print(f"uploaded: {object.object_name}")
+    return object
 
 def parse_cmdline(args):
     desc = "upload some files to minio/s3"
-    epilog = """
-    example:
-        ./mc-put.py -k key -s secret -u minio.example.com:8081 mybucket myfiles*.zip
-    """
+    epilog = ""
 
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
 
@@ -89,30 +101,32 @@ def main(args):
     # Create client with access and secret key.
     client = Minio(endpoint=args.host, access_key=args.key, secret_key=args.secret, secure=False)
 
-    # make list file from input argument (cleaner)
+    # make list file from input argument
     files = mk_filelist(args.files)
 
-    tags = client.get_bucket_tags(args.bucket)
-
-    # Upload data with tags, retention and legal-hold.
-    now = datetime.now()
-    retention_date = datetime.now().replace(
-        hour=0, minute=0, second=0, microsecond=0,
-    ) + timedelta(days=30)
+    # Create Tags
+    dt_now_str = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     tags = Tags(for_object=True)
     tags["version"] = args.version
     tags["coverage"] = args.coverage
-    tags["datetime"] = now.strftime("%m/%d/%Y, %H:%M:%S")
+    tags["datetime"] = dt_now_str
 
-    for filename in files:
+    for input_filepath in files:
         try:
-            base_name = args.coverage + '/' + args.version + '/' + os.path.basename(filename)
-            print(base_name)
-            res = upload(client, args.bucket, base_name, filename, retention_date, tags)
-            print(f"uploaded: {res}")
+            minio_filepath = f"{args.version}/{args.coverage}/{args.version}_{args.coverage}_{dt_now_str}_{os.path.basename(input_filepath)}"
+            upload(client, args.bucket, minio_filepath, input_filepath, tags)
         except MinioException as err:
             print(err)
 
+    # Scan available files from prefix /valhalla_version/coverage/
+    objects = scan(client, args.bucket, prefix=f"{args.version}/{args.coverage}", recursive=True)
+    # Delete oldest data_set (all file with same latest datetime)
+    oldest_objects = get_oldest_data(objects)
+    for file in oldest_objects:
+        try:
+            res = delete(client, args.bucket, file)
+        except MinioException as err:
+            print(err)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
