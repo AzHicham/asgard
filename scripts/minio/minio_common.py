@@ -2,6 +2,7 @@
 
 import os
 import sys
+import pathlib
 
 
 def common_format_str():
@@ -13,6 +14,20 @@ def scan(client, bucket, prefix="/", recursive=False):
         bucket, prefix=prefix, recursive=recursive,
     )
     return obj
+
+
+def get_content_type(filename):
+    suffix = pathlib.Path(filename).suffix
+    if suffix == '.csv':
+        return "text/csv"
+    if suffix == '.txt':
+        return "text/plain"
+    elif suffix == '.json':
+        return "application/json"
+    elif suffix == '.tar':
+        return "application/x-tar"
+    else:
+        return "application/octet-stream"
 
 
 def create_symlink(src, dst):

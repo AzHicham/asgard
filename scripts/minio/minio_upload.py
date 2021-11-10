@@ -51,6 +51,7 @@ def upload(client, bucket, minio_filepath, input_filepath, tags=None):
     file_object = client.fput_object(
         bucket, minio_filepath, input_filepath,
         tags=tags, progress=Progress(),
+        content_type=get_content_type(input_filepath)
     )
     print(f"uploaded: {file_object.object_name}")
     return file_object
