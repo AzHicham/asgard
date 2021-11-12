@@ -45,11 +45,11 @@ using ProjectedLocations = std::unordered_map<midgard::PointLL, valhalla::baldr:
 constexpr size_t MAX_MASK_SIZE = 10000;
 using ProjectionFailedMask = std::bitset<MAX_MASK_SIZE>;
 
-static const std::unordered_map<std::string, float> TIMECOST_DIVISOR = {{"walking", thor::kTimeDistCostThresholdPedestrianDivisor},
-                                                                        {"bike", thor::kTimeDistCostThresholdBicycleDivisor},
-                                                                        {"bss", thor::kTimeDistCostThresholdPedestrianDivisor},
-                                                                        {"car", thor::kTimeDistCostThresholdAutoDivisor},
-                                                                        {"taxi", thor::kTimeDistCostThresholdAutoDivisor}};
+static const std::unordered_map<std::string, float> TIMECOST_DIVISOR = {{"walking", 7.0f},
+                                                                        {"bike", 500.0f},
+                                                                        {"bss", 7.0f},
+                                                                        {"car", 112.0f},
+                                                                        {"taxi", 112.0f}};
 
 // MAX_MATRIX_Distance value set by Valhalla
 // in meters
@@ -425,7 +425,7 @@ pbnavitia::Response Handler::handle_direct_path(const pbnavitia::Request& reques
     valhalla::Api api;
     auto* trip_leg = api.mutable_trip()->mutable_routes()->Add()->mutable_legs()->Add();
     thor::TripLegBuilder::Build(options, controller, graph, mode_costing.get_costing(), pathedges.begin(),
-                                pathedges.end(), origin, dest, {}, *trip_leg, {"route"}, nullptr, nullptr);
+                                pathedges.end(), origin, dest, *trip_leg, {"route"}, nullptr);
 
     api.mutable_options()->set_language(request.direct_path().streetnetwork_params().language());
     odin::DirectionsBuilder::Build(api);

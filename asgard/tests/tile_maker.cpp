@@ -87,7 +87,7 @@ void TileMaker::make_tile() {
                         const bool is_bss_connection = false) {
         DirectedEdgeBuilder edge_builder({}, v.first, forward, u.second.Distance(v.second), 1, 1,
                                          Use::kRoad, RoadClass::kMotorway, localedgeidx,
-                                         false, 0, 0, false);
+                                         false, 0, 0, false, 0, 0, false);
         edge_builder.set_opp_index(opposing_edge_index);
         edge_builder.set_forwardaccess(forward_access);
         edge_builder.set_reverseaccess(backward_access);
