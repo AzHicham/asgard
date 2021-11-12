@@ -2,8 +2,9 @@ name: SonarCloud
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   sonar_analysis:
@@ -21,9 +22,9 @@ jobs:
       run : |
         apt update -y
         apt install -y unzip wget gcovr
-        wget 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip' 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.0.2311-linux.zip'
+        wget 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip' 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip'
         unzip -u build-wrapper-linux-x86.zip
-        unzip -u sonar-scanner-cli-4.6.0.2311-linux.zip
+        unzip -u sonar-scanner-cli-4.6.2.2472-linux.zip
         
     - name: Cache Sonar
       id: cache-sonar
