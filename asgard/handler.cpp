@@ -45,19 +45,27 @@ using ProjectedLocations = std::unordered_map<midgard::PointLL, valhalla::baldr:
 constexpr size_t MAX_MASK_SIZE = 10000;
 using ProjectionFailedMask = std::bitset<MAX_MASK_SIZE>;
 
-static const std::unordered_map<std::string, float> TIMECOST_DIVISOR = {{"walking", thor::kTimeDistCostThresholdPedestrianDivisor},
-                                                                        {"bike", thor::kTimeDistCostThresholdBicycleDivisor},
-                                                                        {"bss", thor::kTimeDistCostThresholdPedestrianDivisor},
-                                                                        {"car", thor::kTimeDistCostThresholdAutoDivisor},
-                                                                        {"taxi", thor::kTimeDistCostThresholdAutoDivisor}};
+// The AVERAGE_SPEED is used to compute the cost_threshold, which is a safeguard on matrix's computation.
+// In valhalla, the cost_threshold is computed by dividing the distance by the average speed of the chosen travel mode.
+// This way of calculating is very approximate which caused the insufficient fallback duration in Navitia.
+// What we do here is to multiply the distance by the divisor in order to broaden the range of research in matrix.
+
+// Different average speeds can be found here:
+// https://github.com/valhalla/valhalla/blob/061f1d37a7d06cc64f1bb663f57abfc9186baa61/src/thor/timedistancematrix.cc#L36
+// https://github.com/valhalla/valhalla/blob/f6f1a75cb220e0698a31c6f13c17e4903257133a/src/thor/timedistancebssmatrix.cc#L42
+static const std::unordered_map<std::string, double> AVERAGE_SPEED = {{"walking", 1.0f},
+                                                                      {"bike", 4.4f},
+                                                                      {"bss", 4.4f},
+                                                                      {"car", 15.0f},
+                                                                      {"taxi", 15.0f}};
 
 // MAX_MATRIX_Distance value set by Valhalla
 // in meters
-static const std::unordered_map<std::string, float> MAX_MATRIX_DISTANCE = {{"walking", 200000},
-                                                                           {"bike", 200000},
-                                                                           {"bss", 200000},
-                                                                           {"car", 500000},
-                                                                           {"taxi", 500000}};
+static const std::unordered_map<std::string, float> MAX_MATRIX_DISTANCE = {{"walking", 10000}, // 10 KM
+                                                                           {"bike", 20000},    // 20 KM
+                                                                           {"bss", 20000},     // 20 KM
+                                                                           {"car", 200000},    // 200 KM
+                                                                           {"taxi", 200000}};  // 200 KM
 
 // Default value set by Navitia
 // in m/s
@@ -85,21 +93,22 @@ float get_max_distance(const std::string& mode, const pbnavitia::StreetNetworkRo
     if (duration < 0) {
         throw std::runtime_error("Matrix max duration is negative");
     }
-    float max_distance = duration * TIMECOST_DIVISOR.at(mode);
+    float max_distance = 1;
+    auto const& params = request.streetnetwork_params();
 
     switch (util::convert_navitia_to_streetnetwork_mode(mode)) {
     case pbnavitia::StreetNetworkMode::Walking:
-        max_distance *= request.asgard_max_walking_duration_coeff();
+        max_distance = duration * std::max(params.walking_speed(), AVERAGE_SPEED.at(mode)) * request.asgard_max_walking_duration_coeff();
         break;
     case pbnavitia::StreetNetworkMode::Bike:
-        max_distance *= request.asgard_max_bike_duration_coeff();
+        max_distance = duration * std::max(params.bike_speed(), AVERAGE_SPEED.at(mode)) * request.asgard_max_bike_duration_coeff();
         break;
     case pbnavitia::StreetNetworkMode::Bss:
-        max_distance *= request.asgard_max_bss_duration_coeff();
+        max_distance = duration * std::max(params.bss_speed(), AVERAGE_SPEED.at(mode)) * request.asgard_max_bss_duration_coeff();
         break;
     case pbnavitia::StreetNetworkMode::Car:
     case pbnavitia::StreetNetworkMode::Taxi:
-        max_distance *= request.asgard_max_car_duration_coeff();
+        max_distance = duration * std::max(params.car_speed(), AVERAGE_SPEED.at(mode)) * request.asgard_max_car_duration_coeff();
         break;
     default:
         throw std::runtime_error(std::string("Cannot compute max duration for mode: ") + mode);
@@ -425,7 +434,7 @@ pbnavitia::Response Handler::handle_direct_path(const pbnavitia::Request& reques
     valhalla::Api api;
     auto* trip_leg = api.mutable_trip()->mutable_routes()->Add()->mutable_legs()->Add();
     thor::TripLegBuilder::Build(options, controller, graph, mode_costing.get_costing(), pathedges.begin(),
-                                pathedges.end(), origin, dest, {}, *trip_leg, {"route"}, nullptr, nullptr);
+                                pathedges.end(), origin, dest, *trip_leg, {"route"}, nullptr);
 
     api.mutable_options()->set_language(request.direct_path().streetnetwork_params().language());
     odin::DirectionsBuilder::Build(api);

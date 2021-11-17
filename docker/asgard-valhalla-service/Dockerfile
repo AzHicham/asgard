@@ -1,4 +1,4 @@
-FROM valhalla/valhalla:run-3.1.2
+FROM valhalla/valhalla:run-3.1.4
 
 EXPOSE 8002
 
