@@ -499,7 +499,7 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
     amenity->set_value("poi_type:amenity:bicycle_rental");
     auto* capacity = poi->add_properties();
     capacity->set_type("capacity");
-    capacity->set_value(maneuver.bss_info().capacity());
+    capacity->set_value(std::to_string(maneuver.bss_info().capacity()));
     auto* desc = poi->add_properties();
     desc->set_type("description");
     desc->set_value("");
