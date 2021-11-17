@@ -81,7 +81,7 @@ cd ${asgard_dir}
 git clone https://github.com/valhalla/valhalla.git libvalhalla
 cd libvalhalla
 git submodule update --init --recursive --depth=1
-git checkout 3.1.2
+git checkout 3.1.4
 cd -
 
 # Build and install Valhalla
@@ -101,4 +101,3 @@ git submodule update --init --recursive
 mkdir -p build && cd build
 cmake .. -DVALHALLA_INCLUDEDIR=${valhalla_install_dir}/include -DVALHALLA_LIBRARYDIR=${valhalla_install_dir}/lib -DCMAKE_BUILD_TYPE=Release
 make -j$(nproc)
-

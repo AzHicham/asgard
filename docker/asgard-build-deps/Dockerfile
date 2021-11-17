@@ -50,7 +50,7 @@ RUN env DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet \
 RUN git clone https://github.com/valhalla/valhalla.git libvalhalla \
   && cd libvalhalla \
   && git submodule update --init --recursive --depth=1 \
-  && git checkout 3.1.2 \
+  && git checkout 3.1.4 \
   && cd -
 
 RUN mkdir -p libvalhalla/build \
@@ -58,4 +58,3 @@ RUN mkdir -p libvalhalla/build \
   && cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_SERVICES=Off -DENABLE_NODE_BINDINGS=Off -DENABLE_PYTHON_BINDINGS=Off \
               -DBUILD_SHARED_LIBS=Off -DBoost_USE_STATIC_LIBS=ON -DENABLE_THREAD_SAFE_TILE_REF_COUNT=On\
   && make -j$(nproc) install && ldconfig
-
