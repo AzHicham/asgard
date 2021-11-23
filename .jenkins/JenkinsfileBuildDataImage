@@ -2,11 +2,12 @@ pipeline {
     agent any
     parameters {
         // Parameters for Data Image
-        string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/andorra-latest.osm.pbf', description: 'osm pbf url')
+        string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/france-latest.osm.pbf https://download.geofabrik.de/europe/spain-latest.osm.pbf', description: 'osm pbf url')
         string(name: 'COVERAGE', defaultValue : 'europe', description: 'data image tag')
-        string(name: 'VALHALLA_VERSION', defaultValue : '3.1.2', description: 'data image version')
+        string(name: 'VALHALLA_VERSION', defaultValue : '3.1.4', description: 'data image version')
         string(name: 'ELEVATION_BBOX', defaultValue : '-10.08 8.34 35.81 51.28', description: 'elevation bounding box, default value is for europe')
-        string(name: 'MINIO_HOST', defaultValue: 'minio-asgard.canaltp.fr', description: 'minio intern')
+        string(name: 'SEARCH_RADIUS', defaultValue : '20', description: 'search radius used for coordinate projection')
+        string(name: 'MINIO_HOST', defaultValue: 'http://vippriv-asgard-prd-minio.canaltp.prod', description: 'minio prod')
     }
     options {
         ansiColor('xterm')
@@ -37,7 +38,7 @@ pipeline {
                 sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --mjolnir-tile-extract ${PWD}/valhalla_tiles.tar --mjolnir-timezone ${PWD}/valhalla_tiles/timezones.sqlite --mjolnir-admin ${PWD}/valhalla_tiles/admins.sqlite --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
                 sh """
                     sed -i 's,\\"minimum_reachability\\"\\: [[:digit:]]*,\\"minimum_reachability\\"\\: 30,' valhalla.json
-                    sed -i 's,\\"radius\\"\\: [[:digit:]]*,\\"radius\\"\\: 20,' valhalla.json
+                    sed -i 's,\\"radius\\"\\: [[:digit:]]*,\\"radius\\"\\: ${SEARCH_RADIUS},' valhalla.json
                     sed -i 's,\\"shortcuts\\"\\: [^,]*,\\"shortcuts\\"\\: false,' valhalla.json
                     sed -i 's,\\"hierarchy\\"\\: [^,]*,\\"hierarchy\\"\\: false,' valhalla.json
                     sed -i 's,\\"import_bike_share_stations\\"\\: [^,]*,\\"import_bike_share_stations\\"\\: true,' valhalla.json
@@ -80,12 +81,12 @@ pipeline {
                 }
             }
             steps {
-                //withCredentials([usernamePassword(credentialsId: 'minio-asgard', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
+                //withCredentials([usernamePassword(credentialsId: 'minio-asgard-prd', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
                     dir("./scripts/") {
                         sh """
                         apt update && apt install -y python3-pip
                         python3 -m pip install -r ./minio/requirements.txt
-                        #python3 ./minio/minio_upload.py -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -f ./valhalla_tiles.tar ./valhalla.json -c ${COVERAGE} -v ${VALHALLA_VERSION}
+                        python3 ./minio/minio_upload.py -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -f ./valhalla_tiles.tar ./valhalla.json -c ${COVERAGE} -v ${VALHALLA_VERSION}
                         """
                     }
                 //}

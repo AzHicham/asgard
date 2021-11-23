@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bench Jormungandr
+""" A MinIO Uploader dedicated to upload Valhalla data
 
 Usage:
   minio_upload.py (-h | --help)

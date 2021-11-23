@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bench Jormungandr
+""" A MinIO Downloader dedicated to download Valhalla data
 
 Usage:
   minio_download.py (-h | --help)
@@ -19,7 +19,6 @@ Example:
   minio_download.py -s minioadmin -k minioadmin -H 127.0.0.1:9000 -b asgard -c "europe" -V "3.1.2"
 """
 import os.path
-import sys
 from collections import OrderedDict
 from datetime import datetime
 from parse import *
@@ -40,7 +39,7 @@ def get_latest_data(file_objects):
             (dict[dt]).append((obj.object_name, base_name, symlink))
         else:
             dict[dt] = [(obj.object_name, base_name, symlink)]
-    if len(dict) > 0:
+    if dict:
         _, file_list = next(iter(reversed(dict.items())))
         return file_list
     else:
