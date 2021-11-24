@@ -4,7 +4,7 @@ pipeline {
         // Parameters for Data Image
         string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/france-latest.osm.pbf https://download.geofabrik.de/europe/spain-latest.osm.pbf', description: 'osm pbf url')
         string(name: 'COVERAGE', defaultValue : 'europe', description: 'data image tag')
-        string(name: 'VALHALLA_VERSION', defaultValue : '3.1.4', description: 'data image version')
+        string(name: 'VALHALLA_VERSION', defaultValue : '3.1.2', description: 'data image version')
         string(name: 'ELEVATION_BBOX', defaultValue : '-10.08 8.34 35.81 51.28', description: 'elevation bounding box, default value is for europe')
         string(name: 'SEARCH_RADIUS', defaultValue : '20', description: 'search radius used for coordinate projection')
         string(name: 'MINIO_HOST', defaultValue: 'http://vippriv-asgard-prd-minio.canaltp.prod', description: 'minio prod')
@@ -81,7 +81,7 @@ pipeline {
                 }
             }
             steps {
-                //withCredentials([usernamePassword(credentialsId: 'minio-asgard-prd', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-core-minio-prd', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
                     dir("./scripts/") {
                         sh """
                         apt update && apt install -y python3-pip
@@ -89,7 +89,7 @@ pipeline {
                         python3 ./minio/minio_upload.py -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -f ./valhalla_tiles.tar ./valhalla.json -c ${COVERAGE} -v ${VALHALLA_VERSION}
                         """
                     }
-                //}
+                }
             }
         }
     }
