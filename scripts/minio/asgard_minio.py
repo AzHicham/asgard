@@ -22,16 +22,7 @@ Example:
 
 """
 
-import os.path
-import glob
-from collections import OrderedDict
-from datetime import datetime
-from parse import *
-from minio import Minio
-from minio.error import MinioException
-from minio_progress import Progress
-from minio.commonconfig import Tags
-from minio_common import *
+from minio_common import check_config
 from minio_download import download
 from minio_upload import upload
 import minio_config

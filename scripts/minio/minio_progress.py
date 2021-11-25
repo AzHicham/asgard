@@ -69,6 +69,7 @@ class Progress(Thread):
         self.display_queue = Queue()
         self.initial_time = time.time()
         self.stdout = stdout
+        self.prefix = ""
         self.start()
 
     def set_meta(self, total_length, object_name):
