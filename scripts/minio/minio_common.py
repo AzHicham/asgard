@@ -50,3 +50,13 @@ def check_cmdline(args):
 
     if args['--host'].startswith('http'):
         _, args['--host'] = args['--host'].split('://')
+
+
+def check_config(config):
+    if not all([config.key, config.secret, config.host, config.bucket]):
+        print(config)
+        print("must supply a key, secret, server host, and file(s)")
+        sys.exit(1)
+
+    if config.host.startswith('http'):
+        _, config.host = config.host.split('://')

@@ -3,7 +3,7 @@
 
 Usage:
   asgard_minio.py (-h | --help)
-  asgard_minio.py download [-k S3_KEY | --key=S3_KEY] [-s S3_SECRET | --secret=S3_SECRET] [-H HOST | --host=HOST] [-F] [-b BUCKET | --bucket=BUCKET] [-c COVERAGE | --coverage=COVERAGE] [-V VALHALLA_VERSION | --valhalla_version=VALHALLA_VERSION]
+  asgard_minio.py download [<files>...] [-k S3_KEY | --key=S3_KEY] [-s S3_SECRET | --secret=S3_SECRET] [-H HOST | --host=HOST] [-F] [-b BUCKET | --bucket=BUCKET] [-c COVERAGE | --coverage=COVERAGE] [-V VALHALLA_VERSION | --valhalla_version=VALHALLA_VERSION]
   asgard_minio.py upload <files>... [-k S3_KEY | --key=S3_KEY] [-s S3_SECRET | --secret=S3_SECRET] [-H HOST | --host=HOST] [-F] [-b BUCKET | --bucket=BUCKET] [-c COVERAGE | --coverage=COVERAGE] [-V VALHALLA_VERSION | --valhalla_version=VALHALLA_VERSION]
 
 Options:
@@ -48,10 +48,10 @@ def main():
     check_config(config)
 
     if args.get('download'):
-        download(config)
+        download(config, args["<files>"])
 
     if args.get('upload'):
-        upload(config, args)
+        upload(config, args["<files>"])
 
 
 if __name__ == '__main__':

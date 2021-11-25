@@ -15,7 +15,7 @@ class Config:
 
     def __init__(self, args=None):
         args = args or {}
-        self.key = args.get('--bucket') or self.key
+        self.key = args.get('--key') or self.key
         self.secret = args.get('--secret') or self.secret
         self.host = args.get('--host') or self.host
         self.bucket = args.get('--bucket') or self.bucket

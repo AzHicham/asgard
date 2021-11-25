@@ -28,6 +28,7 @@ from minio import Minio
 from minio.commonconfig import Tags
 from minio.error import MinioException
 from minio_common import *
+import minio_config
 
 
 # Return oldest files only if there is enough data_set versions 'nb_version_to_keep'
@@ -47,7 +48,7 @@ def get_oldest_data(objects, nb_version_to_keep=0):
     return file_list
 
 
-def upload(client, bucket, minio_filepath, input_filepath, tags=None):
+def _upload(client, bucket, minio_filepath, input_filepath, tags=None):
     file_object = client.fput_object(
         bucket, minio_filepath, input_filepath,
         tags=tags, progress=Progress(),
@@ -75,41 +76,45 @@ def parse_args():
     return docopt(__doc__, version='Asgard Minio Upload v0.0.1')
 
 
-def main():
-    args = parse_args()
-    check_cmdline(args)
-
+def upload(config, input_files):
     # Create client with access and secret key.
-    client = Minio(endpoint=args['--host'], access_key=args['--key'], secret_key=args['--secret'], secure=False)
+    client = Minio(endpoint=config.host, access_key=config.key, secret_key=config.secret, secure=False)
 
     # make list file from input argument
-    files = mk_filelist(args['--files'])
-    print(args['--files'])
+    files = mk_filelist(input_files)
+    print(input_files)
     # Create Tags
     dt_now_str = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     tags = Tags(for_object=True)
-    tags["version"] = args['--valhalla_version']
-    tags["coverage"] = args['--coverage']
+    tags["version"] = config.valhalla_version
+    tags["coverage"] = config.coverage
     tags["datetime"] = dt_now_str
 
     for input_filepath in files:
         try:
-            minio_filepath = common_format_str().format(args['--valhalla_version'], args['--coverage'],
-                                                        args['--valhalla_version'], args['--coverage'],
+            minio_filepath = common_format_str().format(config.valhalla_version, config.coverage,
+                                                        config.valhalla_version, config.coverage,
                                                         dt_now_str, os.path.basename(input_filepath))
-            upload(client, args['--bucket'], minio_filepath, input_filepath, tags)
+            _upload(client, config.bucket, minio_filepath, input_filepath, tags)
         except MinioException as err:
             print(err)
 
     # Scan available files from prefix /valhalla_version/coverage/
-    objects = scan(client, args['--bucket'], prefix=f"{args['--valhalla_version']}/{args['--coverage']}", recursive=True)
+    objects = scan(client, config.bucket, prefix=f"{config.valhalla_version}/{config.coverage}", recursive=True)
     # Delete oldest data_set (all file with same latest datetime)
     oldest_objects = get_oldest_data(objects, nb_version_to_keep=2)
     for file in oldest_objects:
         try:
-            delete(client, args['--bucket'], file)
+            delete(client, config.bucket, file)
         except MinioException as err:
             print(err)
+
+
+def main():
+    args = parse_args()
+    check_cmdline(args)
+    config = minio_config.Config(args)
+    upload(config, args.get("--files"))
 
 
 if __name__ == '__main__':
