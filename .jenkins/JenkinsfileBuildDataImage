@@ -5,7 +5,7 @@ pipeline {
         string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/antarctica-latest.osm.pbf', description: 'osm pbf url')
         string(name: 'COVERAGE', defaultValue : 'europe', description: 'data image tag')
         string(name: 'VALHALLA_VERSION', defaultValue : '3.1.2', description: 'data image version')
-        string(name: 'ELEVATION_BBOX', defaultValue : '-10.08 8.34 -10.9 8.44', description: 'elevation bounding box, default value is for europe')
+        string(name: 'ELEVATION_BBOX', defaultValue : '-5.1972 -5.0 51 51.1116', description: 'elevation bounding box, default value is for europe')
         string(name: 'SEARCH_RADIUS', defaultValue : '20', description: 'search radius used for coordinate projection')
         string(name: 'MINIO_HOST', defaultValue: 'http://vippriv-asgard-prd-minio.canaltp.prod', description: 'minio prod')
     }
