@@ -36,6 +36,15 @@ pipeline {
             }
             steps {
                 sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
+                sh """
+                    sed -i 's,\\"minimum_reachability\\"\\: [[:digit:]]*,\\"minimum_reachability\\"\\: 30,' valhalla.json
+                    sed -i 's,\\"radius\\"\\: [[:digit:]]*,\\"radius\\"\\: ${SEARCH_RADIUS},' valhalla.json
+                    sed -i 's,\\"shortcuts\\"\\: [^,]*,\\"shortcuts\\"\\: false,' valhalla.json
+                    sed -i 's,\\"hierarchy\\"\\: [^,]*,\\"hierarchy\\"\\: false,' valhalla.json
+                    sed -i 's,\\"import_bike_share_stations\\"\\: [^,]*,\\"import_bike_share_stations\\"\\: true,' valhalla.json
+                    cat valhalla.json
+                """
+
             }
         }
         stage('Valhalla build elevation') {
@@ -72,14 +81,9 @@ pipeline {
                 }
             }
             steps {
-                sh 'valhalla_build_config --mjolnir-tile-dir /data/valhalla/valhalla_tiles --additional-data-elevation /data/valhalla/elevation_tiles > valhalla.json'
                 sh """
-                    sed -i 's,\\"minimum_reachability\\"\\: [[:digit:]]*,\\"minimum_reachability\\"\\: 30,' valhalla.json
-                    sed -i 's,\\"radius\\"\\: [[:digit:]]*,\\"radius\\"\\: ${SEARCH_RADIUS},' valhalla.json
-                    sed -i 's,\\"shortcuts\\"\\: [^,]*,\\"shortcuts\\"\\: false,' valhalla.json
-                    sed -i 's,\\"hierarchy\\"\\: [^,]*,\\"hierarchy\\"\\: false,' valhalla.json
-                    sed -i 's,\\"import_bike_share_stations\\"\\: [^,]*,\\"import_bike_share_stations\\"\\: true,' valhalla.json
-                    sed -i 's,\\"global_synchronized_cache\\"\\: [^,]*,\\"global_synchronized_cache\\"\\: true,' valhalla.json
+                    sed -i 's,\\"elevation\\"\\: [^,]*,\\"global_synchronized_cache\\"\\: "/data/valhalla/elevation/",' valhalla.json
+                    sed -i 's,\\"tile_extract\\"\\: [^,]*,\\"global_synchronized_cache\\"\\: "/data/valhalla/valhalla_tiles.tar",' valhalla.json
                     cat valhalla.json
                 """
             }
