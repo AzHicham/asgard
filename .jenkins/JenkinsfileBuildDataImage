@@ -35,14 +35,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --mjolnir-tile-extract ${PWD}/valhalla_tiles.tar --mjolnir-timezone ${PWD}/valhalla_tiles/timezones.sqlite --mjolnir-admin ${PWD}/valhalla_tiles/admins.sqlite --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
-                sh """
-                    sed -i 's,\\"minimum_reachability\\"\\: [[:digit:]]*,\\"minimum_reachability\\"\\: 30,' valhalla.json
-                    sed -i 's,\\"radius\\"\\: [[:digit:]]*,\\"radius\\"\\: ${SEARCH_RADIUS},' valhalla.json
-                    sed -i 's,\\"shortcuts\\"\\: [^,]*,\\"shortcuts\\"\\: false,' valhalla.json
-                    sed -i 's,\\"hierarchy\\"\\: [^,]*,\\"hierarchy\\"\\: false,' valhalla.json
-                    sed -i 's,\\"import_bike_share_stations\\"\\: [^,]*,\\"import_bike_share_stations\\"\\: true,' valhalla.json
-                """
+                sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
             }
         }
         stage('Valhalla build elevation') {
@@ -68,11 +61,32 @@ pipeline {
                 sh """
                     find valhalla_tiles | sort -n | tar cf valhalla_tiles.tar --no-recursion -T -
                     find elevation_tiles | sort -n | tar cf elevation_tiles.tar --no-recursion -T -
+                """
+            }
+        }
+        stage('Valhalla prod config') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
+                sh """
+                    sed -i 's,\\"minimum_reachability\\"\\: [[:digit:]]*,\\"minimum_reachability\\"\\: 30,' valhalla.json
+                    sed -i 's,\\"radius\\"\\: [[:digit:]]*,\\"radius\\"\\: ${SEARCH_RADIUS},' valhalla.json
+                    sed -i 's,\\"shortcuts\\"\\: [^,]*,\\"shortcuts\\"\\: false,' valhalla.json
+                    sed -i 's,\\"hierarchy\\"\\: [^,]*,\\"hierarchy\\"\\: false,' valhalla.json
+                    sed -i 's,\\"import_bike_share_stations\\"\\: [^,]*,\\"import_bike_share_stations\\"\\: true,' valhalla.json
                     sed -i 's,\\"global_synchronized_cache\\"\\: [^,]*,\\"global_synchronized_cache\\"\\: true,' valhalla.json
                     cat valhalla.json
                 """
             }
         }
+
+
+
         stage('Upload to minio') {
             agent {
                 docker {
@@ -86,7 +100,8 @@ pipeline {
                     python3 -m venv minio-env
                     .  ./minio-env/bin/activate
                     pip3 install -r ./scripts/minio/requirements.txt
-                    python3 ./scripts/minio/asgard_minio.py upload valhalla_tiles.tar valhalla.json -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -c ${COVERAGE} -V ${VALHALLA_VERSION}"""
+                    python3 ./scripts/minio/asgard_minio.py upload valhalla_tiles.tar elevation_tiles.tar valhalla.json -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -c ${COVERAGE} -V ${VALHALLA_VERSION}
+                    """
 
                 }
             }
