@@ -93,6 +93,7 @@ def upload(config, input_files):
 
     for input_filepath in files:
         try:
+            print("????????????????????????")
             minio_filepath = common_format_str().format(config.valhalla_version, config.coverage,
                                                         config.valhalla_version, config.coverage,
                                                         dt_now_str, os.path.basename(input_filepath))
