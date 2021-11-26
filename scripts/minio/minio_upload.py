@@ -49,6 +49,7 @@ def get_oldest_data(objects, nb_version_to_keep=0):
 
 
 def _upload(client, bucket, minio_filepath, input_filepath, tags=None):
+    print("start to upload")
     file_object = client.fput_object(
         bucket, minio_filepath, input_filepath,
         tags=tags,
