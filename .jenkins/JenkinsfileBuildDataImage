@@ -86,6 +86,7 @@ pipeline {
                         sh """
                         apt update && apt install -y python3-pip
                         python3 -m pip install -r ./minio/requirements.txt
+                        ls
                         python3 ./minio/asgard_minio.py upload ./valhalla_tiles.tar ./valhalla.json -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -c ${COVERAGE} -V ${VALHALLA_VERSION}"""
                     }
                 }

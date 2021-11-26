@@ -79,6 +79,8 @@ def parse_args():
 
 def upload(config, input_files):
     # Create client with access and secret key.
+    print("uploading ????????????????????????")
+
     client = Minio(endpoint=config.host, access_key=config.key, secret_key=config.secret, secure=False)
 
     # make list file from input argument
@@ -93,7 +95,6 @@ def upload(config, input_files):
 
     for input_filepath in files:
         try:
-            print("????????????????????????")
             minio_filepath = common_format_str().format(config.valhalla_version, config.coverage,
                                                         config.valhalla_version, config.coverage,
                                                         dt_now_str, os.path.basename(input_filepath))
