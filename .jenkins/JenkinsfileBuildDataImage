@@ -67,6 +67,7 @@ pipeline {
                 sh 'valhalla_build_tiles -c valhalla.json `find ${PWD}/osmpbf -type f`'
                 sh """
                     find valhalla_tiles | sort -n | tar cf valhalla_tiles.tar --no-recursion -T -
+                    find elevation_tiles | sort -n | tar cf elevation_tiles.tar --no-recursion -T -
                     sed -i 's,\\"global_synchronized_cache\\"\\: [^,]*,\\"global_synchronized_cache\\"\\: true,' valhalla.json
                     cat valhalla.json
                 """
@@ -75,20 +76,18 @@ pipeline {
         stage('Upload to minio') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    image 'python:3.9-slim'
                     reuseNode true
-                    args '-u root'
                 }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'jenkins-core-minio-prd', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
-                    dir("./scripts/") {
-                        sh """
-                        apt update && apt install -y python3-pip
-                        python3 -m pip install -r ./minio/requirements.txt
-                        ls
-                        python3 ./minio/asgard_minio.py upload ./valhalla_tiles.tar ./valhalla.json -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -c ${COVERAGE} -V ${VALHALLA_VERSION}"""
-                    }
+                    sh """
+                    python3 -m venv minio-env
+                    .  ./minio-env/bin/activate
+                    pip3 install -r ./scripts/minio/requirements.txt
+                    python3 ./scripts/minio/asgard_minio.py upload valhalla_tiles.tar valhalla.json -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -c ${COVERAGE} -V ${VALHALLA_VERSION}"""
+
                 }
             }
         }

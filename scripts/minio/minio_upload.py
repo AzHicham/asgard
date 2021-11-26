@@ -49,10 +49,9 @@ def get_oldest_data(objects, nb_version_to_keep=0):
 
 
 def _upload(client, bucket, minio_filepath, input_filepath, tags=None):
-    print("start to upload")
     file_object = client.fput_object(
         bucket, minio_filepath, input_filepath,
-        tags=tags,
+        tags=tags, progress=Progress(),
         content_type=get_content_type(input_filepath)
     )
     print(f"uploaded: {file_object.object_name}")
@@ -79,13 +78,11 @@ def parse_args():
 
 def upload(config, input_files):
     # Create client with access and secret key.
-    print("uploading ????????????????????????")
-
     client = Minio(endpoint=config.host, access_key=config.key, secret_key=config.secret, secure=False)
 
     # make list file from input argument
     files = mk_filelist(input_files)
-    print(input_files)
+    print(f"Files to be uploaded: {files}")
     # Create Tags
     dt_now_str = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     tags = Tags(for_object=True)
@@ -99,7 +96,7 @@ def upload(config, input_files):
                                                         config.valhalla_version, config.coverage,
                                                         dt_now_str, os.path.basename(input_filepath))
             _upload(client, config.bucket, minio_filepath, input_filepath, tags)
-        except Exception as err:
+        except MinioException as err:
             print(err)
 
     # Scan available files from prefix /valhalla_version/coverage/
