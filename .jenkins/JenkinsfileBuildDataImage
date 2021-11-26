@@ -72,7 +72,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
+                sh 'valhalla_build_config --mjolnir-tile-dir /data/valhalla/valhalla_tiles --additional-data-elevation /data/valhalla/elevation_tiles > valhalla.json'
                 sh """
                     sed -i 's,\\"minimum_reachability\\"\\: [[:digit:]]*,\\"minimum_reachability\\"\\: 30,' valhalla.json
                     sed -i 's,\\"radius\\"\\: [[:digit:]]*,\\"radius\\"\\: ${SEARCH_RADIUS},' valhalla.json
