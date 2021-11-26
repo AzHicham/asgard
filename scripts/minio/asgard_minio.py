@@ -20,6 +20,7 @@ Example:
   asgard_minio.py download -s minioadmin -k minioadmin -H 127.0.0.1:9000 -b asgard -c "europe" -V "3.1.2"
   asgard_minio.py upload toto.py titi.py -s minioadmin -k minioadmin -H 127.0.0.1:9000 -b asgard -c "europe" -V "3.1.2"
 
+  MINIO_KEY=my_key MINIO_SECRET=my_secret MINIO_HOST=localhost:9000 MINIO_BUCKET=asgard MINIO_COVERAGE=europe MINIO_VALHALLA_VERSION=3.1.2 asgard_minio.py download
 """
 
 from minio_common import check_config
