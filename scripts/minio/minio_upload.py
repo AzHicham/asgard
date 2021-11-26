@@ -97,7 +97,7 @@ def upload(config, input_files):
                                                         config.valhalla_version, config.coverage,
                                                         dt_now_str, os.path.basename(input_filepath))
             _upload(client, config.bucket, minio_filepath, input_filepath, tags)
-        except MinioException as err:
+        except Exception as err:
             print(err)
 
     # Scan available files from prefix /valhalla_version/coverage/
