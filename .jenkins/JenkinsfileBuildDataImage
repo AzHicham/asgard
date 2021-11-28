@@ -82,8 +82,9 @@ pipeline {
             }
             steps {
                 sh """
-                    sed -i 's,\\"elevation\\"\\: [^,]*,\\"global_synchronized_cache\\"\\: "/data/valhalla/elevation/",' valhalla.json
-                    sed -i 's,\\"tile_extract\\"\\: [^,]*,\\"global_synchronized_cache\\"\\: "/data/valhalla/valhalla_tiles.tar",' valhalla.json
+                    sed -i '/"hierarchy":/a \\t"global_synchronized_cache": true,' valhalla.json
+                    sed -i 's,\\"elevation\\"\\: [^,]*,\\"elevation\\"\\: "/data/valhalla/elevation_tiles",' valhalla.json
+                    sed -i 's,\\"tile_extract\\"\\: [^,]*,\\"tile_extract\\"\\: "/data/valhalla/valhalla_tiles.tar",' valhalla.json
                     cat valhalla.json
                 """
             }
