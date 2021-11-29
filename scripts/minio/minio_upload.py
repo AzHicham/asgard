@@ -40,9 +40,9 @@ def get_oldest_data(objects, nb_version_to_keep=0):
         list_str = parse(format_string, obj.object_name)
         dt = datetime.strptime(list_str[4], "%Y-%m-%d-%H:%M:%S")
         if dt in dict:
-            dict[dt].append(obj.object_name)
+            dict[dt].append((obj.object_name, obj.version_id))
         else:
-            dict[dt] = [obj.object_name]
+            dict[dt] = [(obj.object_name, obj.version_id)]
     if len(dict) > nb_version_to_keep:
         _, file_list = next(iter(dict.items()))
     return file_list
@@ -103,9 +103,9 @@ def upload(config, input_files):
     objects = scan(client, config.bucket, prefix=f"{config.valhalla_version}/{config.coverage}", recursive=True)
     # Delete oldest data_set (all file with same latest datetime)
     oldest_objects = get_oldest_data(objects, nb_version_to_keep=2)
-    for file in oldest_objects:
+    for file, version_id in oldest_objects:
         try:
-            delete(client, config.bucket, file)
+            delete(client, config.bucket, file, version_id)
         except MinioException as err:
             print(err)
 

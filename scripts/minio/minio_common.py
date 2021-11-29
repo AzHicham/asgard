@@ -11,7 +11,7 @@ def common_format_str():
 
 def scan(client, bucket, prefix="/", recursive=False):
     obj = client.list_objects(
-        bucket, prefix=prefix, recursive=recursive,
+        bucket, prefix=prefix, recursive=recursive, include_version=True
     )
     return obj
 
@@ -37,9 +37,9 @@ def create_symlink(src, dst):
     print(f"Symlink created : {dst} -> {src}")
 
 
-def delete(client, bucket, minio_filepath):
-    objects = client.remove_object(bucket, minio_filepath)
-    print("Deleted file: ", minio_filepath)
+def delete(client, bucket, minio_filepath, version_id):
+    objects = client.remove_object(bucket, minio_filepath, version_id)
+    print(f"Deleted file: {minio_filepath}, {version_id}")
     return objects
 
 
