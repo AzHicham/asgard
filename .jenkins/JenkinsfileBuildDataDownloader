@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+        parameters {
+        string(name: 'registry_intern', defaultValue: 'docker-registry.canaltp.fr', description: 'registry intern')
+    }
+    options {
+        ansiColor('xterm')
+    }
+    stages {
+        stage('Build Data Downloader') {
+            steps {
+                sh "make build-data-downloader"
+            }
+        }
+        stage('Log in') {
+            steps {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'kisio-docker-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh "make dockerhub-login DOCKERHUB_USER=${USERNAME} DOCKERHUB_PWD=${PASSWORD}"
+                }
+            }
+        }
+        stage('Push Asgard Data Downloder') {
+	        steps {
+		        sh "echo 'Push data downloader with tag:' \"${params.registry_intern}\""
+		        sh "make push-data-image-downloader REGISTRY_HOST=${params.registry_intern}"
+	        }
+	    }
+    }
+    post {
+        always {
+            deleteDir()
+        }
+    }
+}
