@@ -16,5 +16,8 @@ RUN pip install -U pip && pip install -r asgard/scripts/minio/requirements.txt
 
 VOLUME [ "/data/valhalla"]
 # Donwload valhalla_tiles.tar valhalla.json of latest versions 
-ENTRYPOINT ["sh", "-c", "python3 asgard/scripts/minio/asgard_minio.py download; rm -rf tmp_tiles && mkdir tmp_tiles; tar -xf elevation_tiles.tar -C tmp_tiles && mv tmp_tiles/elevation_tiles /data/valhalla/elevation_tiles"]
+ENTRYPOINT ["sh", "-c", "python3 asgard/scripts/minio/asgard_minio.py download && \
+                         ! [ -e /data/valhalla/elevation_tiles ] && \
+                         rm -rf tmp_tiles && mkdir tmp_tiles && tar -xf elevation_tiles.tar -C tmp_tiles && \
+                         mv tmp_tiles/elevation_tiles /data/valhalla/elevation_tiles"]
 
