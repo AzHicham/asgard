@@ -1,10 +1,12 @@
-# [-k S3_KEY | --key=S3_KEY] [-s S3_SECRET | --secret=S3_SECRET] [-H HOST | --host=HOST] [-F] [-b BUCKET | --bucket=BUCKET] [-c COVERAGE | --coverage=COVERAGE] [-V VALHALLA_VERSION | --valhalla_version=VALHALLA_VERSION]
 from dataclasses import dataclass
 import os
 
 
 @dataclass
 class Config:
+    """
+    This class will load the config either from environment variables or command line arguments
+    """
     key: str = os.getenv('MINIO_KEY', "key")
     secret: str = os.getenv('MINIO_SECRET', "secret")
     host: str = os.getenv('MINIO_HOST', "localhost:9000")
