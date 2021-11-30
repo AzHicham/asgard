@@ -20,7 +20,7 @@ Example:
 """
 import os.path
 import glob
-from collections import OrderedDict
+from collections import defaultdict
 from datetime import datetime
 from parse import *
 from minio import Minio
@@ -32,19 +32,19 @@ import minio_config
 
 
 def get_latest_data(file_objects):
-    dict = OrderedDict()
+    dic = defaultdict(list)
     format_string = common_format_str()
     for obj in file_objects:
+        # we want the real object, not the delete marker
+        if obj.is_delete_marker:
+            continue
         list_str = parse(format_string, obj.object_name)
         dt = datetime.strptime(list_str[4], "%Y-%m-%d-%H:%M:%S")
         base_name = f"{list_str[2]}_{list_str[3]}_{list_str[4]}_{list_str[5]}"
         symlink = list_str[5]
-        if dt in dict:
-            dict[dt].append((obj.object_name, base_name, symlink))
-        else:
-            dict[dt] = [(obj.object_name, base_name, symlink)]
-    if dict:
-        _, file_list = next(iter(reversed(dict.items())))
+        dic[dt].append((obj.object_name, base_name, symlink))
+    if dic:
+        _, file_list = next(iter(sorted(dic.items(), reverse=True)))
         return file_list
     else:
         return []
