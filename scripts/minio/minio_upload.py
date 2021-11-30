@@ -20,7 +20,7 @@ Example:
 """
 
 import glob
-from collections import OrderedDict
+from collections import defaultdict
 from parse import *
 from datetime import datetime
 from minio_progress import Progress
@@ -29,12 +29,12 @@ from minio.commonconfig import Tags
 from minio.error import MinioException
 from minio_common import *
 import minio_config
-
+import itertools
 
 # Return oldest files only if there is enough data_set versions 'nb_version_to_keep'
 def get_oldest_data(objects, nb_version_to_keep=0):
-    dict = OrderedDict()
-    file_list = []
+    dic = defaultdict(list)
+
     format_string = common_format_str()
     for obj in objects:
         # we want the real object, not the delete marker
@@ -42,13 +42,15 @@ def get_oldest_data(objects, nb_version_to_keep=0):
             continue
         list_str = parse(format_string, obj.object_name)
         dt = datetime.strptime(list_str[4], "%Y-%m-%d-%H:%M:%S")
-        if dt in dict:
-            dict[dt].append((obj.object_name, obj.version_id))
-        else:
-            dict[dt] = [(obj.object_name, obj.version_id)]
-    if len(dict) > nb_version_to_keep:
-        _, file_list = next(iter(dict.items()))
-    return file_list
+        dic[dt].append((obj.object_name, obj.version_id))
+
+    # sort item regarding timestamp in increasing order
+    sorted_dataset = list(sorted(dic.items(), reverse=True))
+    if len(sorted_dataset) <= nb_version_to_keep:
+        return []
+
+    oldest = itertools.chain.from_iterable(l for _, l in sorted_dataset[nb_version_to_keep:])
+    return oldest
 
 
 def _upload(client, bucket, minio_filepath, input_filepath, tags=None):
