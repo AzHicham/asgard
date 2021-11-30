@@ -32,7 +32,7 @@ import minio_config
 import itertools
 
 # Return oldest files only if there is enough data_set versions 'nb_version_to_keep'
-def get_oldest_data(objects, nb_version_to_keep=0):
+def get_oldest_dataset_to_be_removed(objects, nb_version_to_keep=0):
     dic = defaultdict(list)
 
     format_string = common_format_str()
@@ -107,7 +107,7 @@ def upload(config, input_files):
     # Scan available files from prefix /valhalla_version/coverage/
     objects = scan(client, config.bucket, prefix=f"{config.valhalla_version}/{config.coverage}", recursive=True)
     # Delete oldest data_set (all file with same latest datetime)
-    oldest_objects = get_oldest_data(objects, nb_version_to_keep=2)
+    oldest_objects = get_oldest_dataset_to_be_removed(objects, nb_version_to_keep=2)
     for file, version_id in oldest_objects:
         try:
             delete(client, config.bucket, file, version_id)
