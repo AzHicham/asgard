@@ -40,7 +40,7 @@ def create_symlink(src, dst):
 def delete(client, bucket, minio_filepath, version_id):
     objects = client.remove_object(bucket, minio_filepath, version_id)
     print(f"Deleted file: {minio_filepath}, {version_id}")
-    return objects
+
 
 
 def check_cmdline(args):
