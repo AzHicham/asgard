@@ -34,10 +34,21 @@ import minio_config
 def get_latest_data(file_objects):
     dic = defaultdict(list)
     format_string = common_format_str()
+    delete_markers = set()
+    real_objects = []
+
     for obj in file_objects:
-        # we want the real object, not the delete marker
+        # we store the delete_markers names
         if obj.is_delete_marker:
+            delete_markers.add(obj.object_name)
+        else:
+            real_objects.append(obj)
+
+    for obj in real_objects:
+        # is this object already present in delete_markers?
+        if obj.object_name in delete_markers:
             continue
+
         list_str = parse(format_string, obj.object_name)
         dt = datetime.strptime(list_str[4], "%Y-%m-%d-%H:%M:%S")
         base_name = f"{list_str[2]}_{list_str[3]}_{list_str[4]}_{list_str[5]}"
