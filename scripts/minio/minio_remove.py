@@ -1,4 +1,3 @@
-from minio_common import *
 import minio
 import minio_common
 
