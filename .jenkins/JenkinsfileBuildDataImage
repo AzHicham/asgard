@@ -31,10 +31,15 @@ pipeline {
             agent {
                 docker {
                     image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    args '-u root:sudo'
                     reuseNode true
                 }
             }
             steps {
+                // ----------------------------------------------------
+                // Bug of valhalla/valhalla:run-3.1.4
+                sh 'apt update &&  apt-get install -y python3-distutils'
+                // ----------------------------------------------------
                 sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
                 sh """
                     sed -i 's,\\"minimum_reachability\\"\\: [[:digit:]]*,\\"minimum_reachability\\"\\: 30,' valhalla.json
