@@ -28,10 +28,22 @@ pipeline {
                 sh "make wipe-useless-images"
             }
         }
-        stage ('trig data and app jobs') {
+        stage ('trigger data') {
+            when {
+                expression { params.branch_name == 'master' }
+            }
             steps {
                 sh 'echo "Branch Name" ${BRANCH_NAME}'
-                build job: 'build-asgard-data', wait: false
+                build job: 'build-asgard-data', parameters: [string(name: 'PBF_URL', value: 'https://download.geofabrik.de/europe/france-latest.osm.pbf'),
+                                                             string(name: 'VALHALLA_VERSION', value: '3.1.4'),
+                                                             string(name: 'ELEVATION_BBOX', value: '-5.12 8.55 42.23 51.17'),
+                                                             string(name: 'SEARCH_RADIUS', value: '20'),
+                                                             string(name: 'MINIO_HOST', value: 'http://vippriv-asgard-prd-minio.canaltp.prod'),] wait: false
+            }
+        }
+        stage ('trigger app jobs') {
+            steps {
+                sh 'echo "Branch Name" ${BRANCH_NAME}'
                 build job: 'build-asgard-app', parameters: [string(name: 'branch_name', value: env.BRANCH_NAME)], wait: false
                 build job: 'build-asgard-valhalla-service', parameters: [string(name: 'branch_name', value: env.BRANCH_NAME)], wait: false
             }
