@@ -1,56 +1,118 @@
 pipeline {
     agent any
-    parameters { 
+    parameters {
         // Parameters for Data Image
         string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/france-latest.osm.pbf https://download.geofabrik.de/europe/spain-latest.osm.pbf', description: 'osm pbf url')
-        string(name: 'DATA_IMAGE_TAG', defaultValue : 'europe', description: 'data image tag')
+        string(name: 'COVERAGE', defaultValue : 'europe', description: 'data image tag')
+        string(name: 'VALHALLA_VERSION', defaultValue : '3.1.4', description: 'data image version')
         string(name: 'ELEVATION_BBOX', defaultValue : '-10.08 8.34 35.81 51.28', description: 'elevation bounding box, default value is for europe')
-	string(name: 'registry_intern', defaultValue: 'docker-registry.canaltp.fr', description: 'registry intern')
+        string(name: 'SEARCH_RADIUS', defaultValue : '20', description: 'search radius used for coordinate projection')
+        string(name: 'MINIO_HOST', defaultValue: 'http://vippriv-asgard-prd-minio.canaltp.prod', description: 'minio prod')
+    }
+    options {
+        ansiColor('xterm')
     }
     stages {
-        stage('Remove navitia/asgard-build-deps images') {
-            steps {
-                sh 'echo "Remove old images"'
-                sh "make remove-build-deps-image"
+        stage('Download pbf') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    reuseNode true
+                }
             }
-        } 
-        stage('Build Data Image') {
             steps {
-                sh 'echo "Build data image"'
-                sh "make build-data-image TAG=${DATA_IMAGE_TAG} PBF_URL='${PBF_URL}' BBOX='${ELEVATION_BBOX}'" 
-            }
-        }
-	stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'core-ci-registry-access', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh "make docker-login DOCKERHUB_USER=${USERNAME} DOCKERHUB_PWD=${PASSWORD} REGISTRY_HOST=${params.registry_intern}"
+                sh 'mkdir osmpbf'
+                dir('osmpbf') {
+                    sh "for pbf in ${PBF_URL}; do (wget --progress=bar:force:noscroll \${pbf}) ; done"
                 }
             }
         }
-        stage('Push Asgard Data Image to Intern') {
+        stage('Valhalla build config') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    reuseNode true
+                }
+            }
             steps {
-                sh 'echo "Push on docker with tag:" ${DATA_IMAGE_TAG}'
-                sh "make push-data-image TAG=${DATA_IMAGE_TAG} REGISTRY_HOST=${params.registry_intern}"
+                sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
+                sh """
+                    sed -i 's,\\"minimum_reachability\\"\\: [[:digit:]]*,\\"minimum_reachability\\"\\: 30,' valhalla.json
+                    sed -i 's,\\"radius\\"\\: [[:digit:]]*,\\"radius\\"\\: ${SEARCH_RADIUS},' valhalla.json
+                    sed -i 's,\\"shortcuts\\"\\: [^,]*,\\"shortcuts\\"\\: false,' valhalla.json
+                    sed -i 's,\\"hierarchy\\"\\: [^,]*,\\"hierarchy\\"\\: false,' valhalla.json
+                    sed -i 's,\\"import_bike_share_stations\\"\\: [^,]*,\\"import_bike_share_stations\\"\\: true,' valhalla.json
+                    cat valhalla.json
+                """
+
             }
         }
-        stage('Remove useless images') {
+        stage('Valhalla build elevation') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    reuseNode true
+                }
+            }
             steps {
-                sh 'echo "Clean docker images"'
-                sh "make wipe-useless-images"
+                sh 'valhalla_build_elevation $ELEVATION_BBOX ${PWD}/elevation_tiles $(nproc)'
             }
         }
+        stage('Valhalla build tiles') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'valhalla_build_tiles -c valhalla.json `find ${PWD}/osmpbf -type f`'
+                sh """
+                    find valhalla_tiles | sort -n | tar cf valhalla_tiles.tar --no-recursion -T -
+                    find elevation_tiles | sort -n | tar cf elevation_tiles.tar --no-recursion -T -
+                """
+            }
+        }
+        stage('Valhalla prod config') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh """
+                    sed -i 's,\\"global_synchronized_cache\\"\\: [^,]*,\\"global_synchronized_cache\\"\\: true,' valhalla.json
+                    sed -i 's,\\"elevation\\"\\: [^,]*,\\"elevation\\"\\: "/data/valhalla/elevation_tiles",' valhalla.json
+                    sed -i 's,\\"tile_extract\\"\\: [^,]*,\\"tile_extract\\"\\: "/data/valhalla/valhalla_tiles.tar",' valhalla.json
+                    cat valhalla.json
+                """
+            }
+        }
+        stage('Upload to minio') {
+            agent {
+                docker {
+                    image 'python:3.9-slim'
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-core-minio-prd', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
+                    sh """
+                    python3 -m venv minio-env
+                    .  ./minio-env/bin/activate
+                    pip3 install -r ./scripts/minio/requirements.txt
+                    python3 ./scripts/minio/asgard_minio.py upload valhalla_tiles.tar elevation_tiles.tar valhalla.json -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -c ${COVERAGE} -V ${VALHALLA_VERSION}
+                    """
+
+                }
+            }
+        }
+        
     }
     post {
         always {
             deleteDir()
         }
-        failure {
-            withCredentials([string(credentialsId: 'navitia_core_team_slack_chan', variable: 'NAVITIA_CORE_TEAM_SLACK_CHAN')]) {
-                sh '''
-                    curl -X POST -H 'Content-type: application/json' --data '{"text":":warning: Asgard data docker failed. See https://jenkins-core.canaltp.fr/job/build-asgard-data/"}' $NAVITIA_CORE_TEAM_SLACK_CHAN
-                '''
-            }
-        }
     }
 }
-

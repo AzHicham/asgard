@@ -47,10 +47,9 @@ RUN env DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet \
     python \
   && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/valhalla/valhalla.git libvalhalla \
+RUN git clone --branch 3.1.4 --depth=1 https://github.com/valhalla/valhalla.git libvalhalla \
   && cd libvalhalla \
   && git submodule update --init --recursive --depth=1 \
-  && git checkout 3.1.4 \
   && cd -
 
 RUN mkdir -p libvalhalla/build \

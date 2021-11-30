@@ -1,0 +1,10 @@
+FROM python:3.9.8-slim
+
+# copy package from context inside the docker
+WORKDIR /app/minio
+COPY minio_*.py /app/minio/
+COPY requirements.txt /app/minio/
+
+# install navitia-kraken package
+RUN pip install -r requirements.txt
+
