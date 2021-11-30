@@ -30,7 +30,7 @@ pipeline {
         }
         stage ('trigger data') {
             when {
-                expression { params.branch_name == 'master' }
+                expression { env.BRANCH_NAME == 'master' }
             }
             steps {
                 sh 'echo "Branch Name" ${BRANCH_NAME}'
