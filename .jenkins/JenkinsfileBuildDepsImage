@@ -38,7 +38,7 @@ pipeline {
                                                              string(name: 'VALHALLA_VERSION', value: '3.1.4'),
                                                              string(name: 'ELEVATION_BBOX', value: '-5.12 8.55 42.23 51.17'),
                                                              string(name: 'SEARCH_RADIUS', value: '20'),
-                                                             string(name: 'MINIO_HOST', value: 'http://vippriv-asgard-prd-minio.canaltp.prod'),] wait: false
+                                                             string(name: 'MINIO_HOST', value: 'http://vippriv-asgard-prd-minio.canaltp.prod')], wait: false
             }
         }
         stage ('trigger app jobs') {
