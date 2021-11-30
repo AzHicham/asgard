@@ -11,7 +11,7 @@ RUN chown -R asgard-user:asgard-user /data/valhalla
 USER asgard-user
 
 # Setup minio from asgard
-RUN git clone --depth=1 --branch minio-upload-script https://github.com/canaltp/asgard asgard
+RUN git clone --depth=1 https://github.com/canaltp/asgard asgard
 RUN pip install -U pip && pip install -r asgard/scripts/minio/requirements.txt
 
 VOLUME [ "/data/valhalla"]
