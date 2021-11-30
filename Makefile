@@ -16,7 +16,8 @@ build-data-downloader: ## Build Asgard data downloader using MinIO
 
 build-app-image-master: ## Build Asgard app image from master
 	$(info Building Asgard app image from master)
-	docker build -f docker/asgard-app/Dockerfile -t navitia/asgard-app:${TAG} . --no-cache
+	cd docker/asgard-app && \
+	docker build -t navitia/asgard-app:${TAG} . --no-cache
 
 build-app-image-release: ## Build Asgard app image from release
 	$(info Building Asgard app image from release)
@@ -32,7 +33,8 @@ build-deps-image: ## Build Asgard deps image
 
 build-asgard-valhalla-service-image: ## Build valhalla_service image, used for extra service(ex: elevation)
 	$(info Building Valhalla service image)
-	docker build -f docker/asgard-valhalla-service/Dockerfile -t navitia/asgard-valhalla-service:${TAG} . --no-cache
+	cd docker/asgard-valhalla-service && \
+	docker build -t navitia/asgard-valhalla-service:${TAG} . --no-cache
 	
 docker-login: ## Login Docker, DOCKERHUB_USER, DOCKERHUB_PWD, REGISTRY_HOST must be provided
 	$(info Login Docker)
