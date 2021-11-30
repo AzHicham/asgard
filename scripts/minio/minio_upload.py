@@ -37,6 +37,9 @@ def get_oldest_data(objects, nb_version_to_keep=0):
     file_list = []
     format_string = common_format_str()
     for obj in objects:
+        # we want the real object, not the delete marker
+        if obj.is_delete_marker:
+            continue
         list_str = parse(format_string, obj.object_name)
         dt = datetime.strptime(list_str[4], "%Y-%m-%d-%H:%M:%S")
         if dt in dict:
