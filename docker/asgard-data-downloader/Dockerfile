@@ -17,8 +17,11 @@ RUN pip install -U pip && pip install -r asgard/scripts/minio/requirements.txt
 VOLUME [ "/data/valhalla"]
 # Download valhalla_tiles.tar valhalla.json of latest versions
 # Once the downloading is finished, the elevation_tiles.tar will be decompressed ONLY if the elevation_tiles doesn't exist
+# Note: after extraction of elevation_tiles.tar, we remove the content in elevation_tiles.tar to reduce disk usage,
+# but still save the file so it won't be edownloaded when rebooting
 ENTRYPOINT ["sh", "-c", "python3 asgard/scripts/minio/asgard_minio.py download && \
                          ! [ -e /data/valhalla/elevation_tiles ] && \
                          rm -rf tmp_tiles && mkdir tmp_tiles && tar -xf elevation_tiles.tar -C tmp_tiles && \
-                         mv tmp_tiles/elevation_tiles /data/valhalla/elevation_tiles"]
+                         mv tmp_tiles/elevation_tiles /data/valhalla/elevation_tiles && \
+                         tar -vf elevation_tiles.tar --delete elevation_tiles"]
 
