@@ -6,6 +6,7 @@ Usage:
   asgard_minio.py download [<files>...] [-k S3_KEY | --key=S3_KEY] [-s S3_SECRET | --secret=S3_SECRET] [-H HOST | --host=HOST] [-F] [-b BUCKET | --bucket=BUCKET] [-c COVERAGE | --coverage=COVERAGE] [-V VALHALLA_VERSION | --valhalla_version=VALHALLA_VERSION]
   asgard_minio.py upload <files>... [-k S3_KEY | --key=S3_KEY] [-s S3_SECRET | --secret=S3_SECRET] [-H HOST | --host=HOST] [-F] [-b BUCKET | --bucket=BUCKET] [-c COVERAGE | --coverage=COVERAGE] [-V VALHALLA_VERSION | --valhalla_version=VALHALLA_VERSION]
   asgard_minio.py list-all [-k S3_KEY | --key=S3_KEY] [-s S3_SECRET | --secret=S3_SECRET] [-H HOST | --host=HOST] [-F] [-b BUCKET | --bucket=BUCKET] [-c COVERAGE | --coverage=COVERAGE] [-V VALHALLA_VERSION | --valhalla_version=VALHALLA_VERSION]
+  asgard_minio.py remove <minio_path> [<version_id>] [-k S3_KEY | --key=S3_KEY] [-s S3_SECRET | --secret=S3_SECRET] [-H HOST | --host=HOST] [-F] [-b BUCKET | --bucket=BUCKET] [-c COVERAGE | --coverage=COVERAGE] [-V VALHALLA_VERSION | --valhalla_version=VALHALLA_VERSION]
 
 Options:
   -h --help                                                     Show this screen.
@@ -29,6 +30,7 @@ from minio_common import check_config
 from minio_download import download
 from minio_upload import upload
 from minio_listall import listall
+from minio_remove import remove
 import minio_config
 
 
@@ -50,6 +52,9 @@ def main():
 
     if args.get('list-all'):
         listall(config)
+
+    if args.get('remove'):
+        remove(config, args.get('<minio_path>'), args.get('<version_id>'))
 
 
 if __name__ == '__main__':
