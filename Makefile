@@ -68,8 +68,8 @@ push-data-image: ## Push data-image to dockerhub, TAG must be provided
 push-data-image-downloader: ## Push data-image-downloader to internal registry
 	$(info Push data-image-downloader to intern: ${REGISTRY_HOST})
 	[ "${REGISTRY_HOST}" ] && \
-	docker tag navitia/asgard-data-downloader::${TAG} ${REGISTRY_HOST}/navitia/asgard-data-downloader::${TAG} && \
-	docker push ${REGISTRY_HOST}/navitia/asgard-data-downloader::${TAG} || echo "REGISTRY_HOST is empty"
+	docker tag navitia/asgard-data-downloader:${TAG} ${REGISTRY_HOST}/navitia/asgard-data-downloader:${TAG} && \
+	docker push ${REGISTRY_HOST}/navitia/asgard-data-downloader:${TAG} || echo "REGISTRY_HOST is empty"
 
 push-valhalla-service-image: ## Push data-image to dockerhub, TAG must be provided 
 	$(info Push data-image to intern: ${REGISTRY_HOST})
