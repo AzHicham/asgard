@@ -40,6 +40,7 @@ pipeline {
                                                              string(name: 'ELEVATION_BBOX', value: '-5.12 8.55 42.23 51.17'),
                                                              string(name: 'SEARCH_RADIUS', value: '20'),
                                                              string(name: 'MINIO_HOST', value: 'http://vippriv-asgard-prd-minio.canaltp.prod')], wait: false
+                build job: 'build-asgard-data-downloader', parameters: [string(name: 'MIOIO_VERSION', value: 'master')], wait: false
             }
         }
         stage ('trigger app jobs') {
