@@ -35,6 +35,7 @@ pipeline {
             steps {
                 sh 'echo "Branch Name" ${BRANCH_NAME}'
                 build job: 'build-asgard-data', parameters: [string(name: 'PBF_URL', value: 'https://download.geofabrik.de/europe/france-latest.osm.pbf'),
+                                                             string(name: 'COVERAGE', value: 'france'),
                                                              string(name: 'VALHALLA_VERSION', value: '3.1.4'),
                                                              string(name: 'ELEVATION_BBOX', value: '-5.12 8.55 42.23 51.17'),
                                                              string(name: 'SEARCH_RADIUS', value: '20'),
