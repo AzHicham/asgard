@@ -102,12 +102,22 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins-core-minio-prd', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-core-minio-prd', \
+                                 usernameVariable: 'MINIO_USER', \
+                                 passwordVariable: 'MINIO_PSWD')]) {
                     sh """
                     python3 -m venv minio-env
                     .  ./minio-env/bin/activate
                     pip3 install -r ./scripts/minio/requirements.txt
-                    python3 ./scripts/minio/asgard_minio.py upload valhalla_tiles.tar elevation_tiles.tar valhalla.json -k $MINIO_USER -s $MINIO_PSWD -H $MINIO_HOST -b asgard -c ${COVERAGE} -V ${VALHALLA_VERSION}
+                    python3 ./scripts/minio/asgard_minio.py upload valhalla_tiles.tar \
+                                                                   elevation_tiles.tar \
+                                                                   valhalla.json \
+                                                                   -k $MINIO_USER \
+                                                                   -s $MINIO_PSWD \
+                                                                   -H $MINIO_HOST \
+                                                                   -b asgard \
+                                                                   -c $COVERAGE \
+                                                                   -V $VALHALLA_VERSION
                     """
 
                 }

@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+    parameters {
+        // Parameters for Data Image
+        string(name: 'COVERAGE', defaultValue : 'dummy_coverage', description: 'data image tag')
+        string(name: 'VALHALLA_VERSION', defaultValue : '42.42.42', description: 'data image version')
+        string(name: 'MINIO_HOST', defaultValue: 'http://vippriv-asgard-int-minio.canaltp.prod', description: 'minio prod')
+    }
+    options {
+        ansiColor('xterm')
+    }
+    stages {
+        stage('Upload to minio') {
+            agent {
+                docker {
+                    image 'python:3.9-slim'
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-core-minio-int', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
+                    sh """
+                    python3 -m venv minio-env
+                    .  ./minio-env/bin/activate
+                    pip3 install -r ./scripts/minio/requirements.txt
+                    # Create dummy files
+                    touch valhalla_tiles.tar elevation_tiles.tar valhalla.json
+                    python3 ./scripts/minio/asgard_minio.py upload valhalla_tiles.tar \
+                                                                   elevation_tiles.tar \
+                                                                   valhalla.json \
+                                                                   -k $MINIO_USER \
+                                                                   -s $MINIO_PSWD \
+                                                                   -H $MINIO_HOST \
+                                                                   -b asgard_test \
+                                                                   -c $COVERAGE \
+                                                                   -V $VALHALLA_VERSION
+                    """
+
+                }
+            }
+        }
+        stage('Download from minio') {
+            agent {
+                docker {
+                    image 'python:3.9-slim'
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-core-minio-int', usernameVariable: 'MINIO_USER', passwordVariable: 'MINIO_PSWD')]) {
+                    sh """
+                    python3 -m venv minio-env
+                    .  ./minio-env/bin/activate
+                    pip3 install -r ./scripts/minio/requirements.txt
+                    # Download dummy files
+                    touch valhalla_tiles.tar elevation_tiles.tar valhalla.json
+                    python3 ./scripts/minio/asgard_minio.py download -k $MINIO_USER \
+                                                                     -s $MINIO_PSWD \
+                                                                     -H $MINIO_HOST \
+                                                                     -b asgard_test \
+                                                                     -c $COVERAGE \
+                                                                     -V $VALHALLA_VERSION
+                    # test
+                    ! [ -e valhalla_tiles.tar ] || ! [ -e elevation_tiles.tar ] || ! [ -e valhalla.json ] && exit 1
+                    """
+                }
+            }
+        }
+        
+    }
+    post {
+        always {
+            deleteDir()
+        }
+    }
+}
