@@ -30,7 +30,7 @@ pipeline {
                                                                    -k $MINIO_USER \
                                                                    -s $MINIO_PSWD \
                                                                    -H $MINIO_HOST \
-                                                                   -b asgard_test \
+                                                                   -b asgard \
                                                                    -c $COVERAGE \
                                                                    -V $VALHALLA_VERSION
                     """
@@ -55,7 +55,7 @@ pipeline {
                     python3 ./scripts/minio/asgard_minio.py download -k $MINIO_USER \
                                                                      -s $MINIO_PSWD \
                                                                      -H $MINIO_HOST \
-                                                                     -b asgard_test \
+                                                                     -b asgard \
                                                                      -c $COVERAGE \
                                                                      -V $VALHALLA_VERSION
                     # test
