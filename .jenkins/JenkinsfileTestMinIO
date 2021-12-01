@@ -58,8 +58,9 @@ pipeline {
                                                                      -b asgard \
                                                                      -c $COVERAGE \
                                                                      -V $VALHALLA_VERSION
-                    # test
-                    ! [ -e valhalla_tiles.tar ] || ! [ -e elevation_tiles.tar ] || ! [ -e valhalla.json ] && exit 1
+
+                    # test all three files are existent
+                    [ -e valhalla_tiles.tar ] && [ -e elevation_tiles.tar ] && [ -e valhalla.json ]
                     """
                 }
             }
