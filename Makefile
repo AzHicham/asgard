@@ -12,7 +12,7 @@ build-data-image: ## Build Asgard data image with provided pbf (PBF_URL) and bbo
 build-data-downloader: ## Build Asgard data downloader using MinIO
 	$(info Building Asgard data image)
 	cd docker/asgard-data-downloader && \
-	docker build  -t navitia/asgard-data-downloader:latest . --no-cache
+	docker build  -t navitia/asgard-data-downloader:${TAG} . --no-cache
 
 build-app-image-master: ## Build Asgard app image from master
 	$(info Building Asgard app image from master)
@@ -68,8 +68,8 @@ push-data-image: ## Push data-image to dockerhub, TAG must be provided
 push-data-image-downloader: ## Push data-image-downloader to internal registry
 	$(info Push data-image-downloader to intern: ${REGISTRY_HOST})
 	[ "${REGISTRY_HOST}" ] && \
-	docker tag navitia/asgard-data-downloader:latest ${REGISTRY_HOST}/navitia/asgard-data-downloader:latest && \
-	docker push ${REGISTRY_HOST}/navitia/asgard-data-downloader:latest || echo "REGISTRY_HOST is empty"
+	docker tag navitia/asgard-data-downloader::${TAG} ${REGISTRY_HOST}/navitia/asgard-data-downloader::${TAG} && \
+	docker push ${REGISTRY_HOST}/navitia/asgard-data-downloader::${TAG} || echo "REGISTRY_HOST is empty"
 
 push-valhalla-service-image: ## Push data-image to dockerhub, TAG must be provided 
 	$(info Push data-image to intern: ${REGISTRY_HOST})
