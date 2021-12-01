@@ -2,7 +2,7 @@ pipeline {
     agent any
     parameters {
         // Parameters for Data Image
-        string(name: 'COVERAGE', defaultValue : 'dummy_coverage', description: 'data image tag')
+        string(name: 'COVERAGE', defaultValue : 'dummy-coverage', description: 'data image tag')
         string(name: 'VALHALLA_VERSION', defaultValue : '42.42.42', description: 'data image version')
         string(name: 'MINIO_HOST', defaultValue: 'http://vippriv-asgard-int-minio.canaltp.prod', description: 'minio prod')
     }
