@@ -106,8 +106,8 @@ def _download(client, bucket, minio_filepath, output_filepath):
     )
     t = WatchDog(output_filepath, result.size)
     t.start()
-
     file_object = client.fget_object(bucket, minio_filepath, output_filepath)
+    t.keep_going = False
     t.join()
     print(f"Downloaded: {file_object.object_name}")
 
