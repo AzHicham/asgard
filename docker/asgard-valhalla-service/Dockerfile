@@ -5,18 +5,18 @@ FROM valhalla/valhalla:run-${VALHALLA_VERSION} as builder
 
 FROM ubuntu:20.04
 
-RUN apt update && apt install -y software-properties-common
-
-RUN add-apt-repository -y ppa:valhalla-core/valhalla
 
 # we install only the depencies that are needed
-RUN apt update && apt install -y libprotobuf-lite17 \
-                                 libcurl4 \
-                                 prime-server-bin
+# install the dependencies needed by libprime-server runtime 
+# apt show libprime-server0
+RUN apt update && apt install -y libprotobuf-lite17 libcurl4 libczmq4 libzmq5
 
-RUN apt purge -y software-properties-common
-RUN apt autoremove -y
-                                                 
+# now we copy libprime-server
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libprime_server.a /usr/lib/x86_64-linux-gnu/libprime_server.a
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libprime_server.so /usr/lib/x86_64-linux-gnu/libprime_server.so
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libprime_server.so.0 /usr/lib/x86_64-linux-gnu/libprime_server.so.0
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libprime_server.so.0.0.0 /usr/lib/x86_64-linux-gnu/libprime_server.0.0.0
+                           
 COPY --from=builder /usr/local/bin/valhalla_service /usr/local/bin/valhalla_service
 
 EXPOSE 8002
