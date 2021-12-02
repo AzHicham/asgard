@@ -19,16 +19,15 @@ Example:
   minio_download.py -s minioadmin -k minioadmin -H 127.0.0.1:9000 -b asgard -c "europe" -V "3.1.2"
 """
 import os.path
-import glob
 from collections import defaultdict
 from datetime import datetime
 from parse import *
 from minio import Minio
 from minio.error import MinioException
-from minio_progress import Progress
-from minio.commonconfig import Tags
 from minio_common import *
 import minio_config
+import time
+from threading import Thread
 
 
 def get_latest_data(file_objects):
@@ -76,9 +75,43 @@ def get_target_files(target_files):
     return res
 
 
+class WatchDog(Thread):
+    def __init__(self, file_name, file_total_size):
+        super().__init__()
+        self.keep_going = True
+        self.file_name = file_name
+        self.file_total_size = file_total_size
+
+    def _file_size(self):
+        from os import listdir
+        for f in listdir("."):
+            if f.startswith(self.file_name):
+                return os.path.getsize(f)
+        return 0
+
+    def run(self):
+        try:
+            while self._file_size() < self.file_total_size and self.keep_going:
+                print(f"{self.file_name}: {self._file_size()} / {self.file_total_size}")
+                time.sleep(5)
+            print(f"{self.file_name}: {self._file_size()} / {self.file_total_size}")
+        except Exception as e:
+            print(e)
+
+
 def _download(client, bucket, minio_filepath, output_filepath):
+    result = client.stat_object(bucket, minio_filepath)
+    print(
+        f"Downloading: {output_filepath} last-modified: {result.last_modified}, size: {result.size}"
+    )
+    t = WatchDog(output_filepath, result.size)
+    t.start()
+
     file_object = client.fget_object(bucket, minio_filepath, output_filepath)
-    print(f"downloaded: {file_object.object_name}")
+    t.join()
+    print(f"Downloaded: {file_object.object_name}")
+
+
     return file_object
 
 
