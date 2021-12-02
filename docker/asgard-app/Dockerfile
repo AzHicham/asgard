@@ -6,13 +6,22 @@ RUN git clone --depth=1 https://github.com/canaltp/asgard asgard
 
 WORKDIR /asgard
 
-# copy libvalhalla in to asgard so that rapidjson is placed in the right place
-RUN cp -r ../libvalhalla libvalhalla
+# create a sym link libvalhalla in to asgard so that rapidjson is placed in the right place
+RUN ln -s ../libvalhalla libvalhalla
 RUN sed -i 's,git\@github.com:\([^/]*\)/\(.*\).git,https://github.com/\1/\2,' .gitmodules && git submodule update --init --recursive \
   && mkdir build && cd build \
   && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc)
 
 FROM ubuntu:20.04
+
+# we install only the depencies that are needed
+RUN apt update && apt install -y wget           \  
+    && apt install -y libboost-regex1.71.0      \ 
+                      libboost-thread1.71.0     \ 
+                      libboost-filesystem1.71.0 \  
+                      libcurl4                  \
+                      libzmq3-dev               \ 
+                      libprotobuf-dev
 
 COPY wait-for-data.sh /usr/bin/wait-for-data.sh
 RUN chmod +x /usr/bin/wait-for-data.sh
@@ -23,8 +32,6 @@ COPY --from=builder /asgard-query /usr/bin/asgard-query
 RUN chmod +x /usr/bin/asgard-query
 USER asgard-user
 COPY --from=builder /asgard/build/asgard/asgard /usr/bin/asgard
-COPY --from=builder /usr/lib/ /usr/lib/
-COPY --from=builder /lib/ /lib/
 EXPOSE 6000 8080
 HEALTHCHECK --interval=60s --timeout=5s --retries=3 \
 CMD /data/valhalla/healthcheck.sh || exit 1
