@@ -22,7 +22,7 @@ VOLUME [ "/data/valhalla"]
 ENTRYPOINT ["sh", "-c", "! [ -e /data/valhalla/elevation_tiles ]    || \
                          ! [ -e /data/valhalla/valhalla_tiles.tar ] || \
                          ! [ -e /data/valhalla/valhalla.json ]      && \ 
-                         python3 asgard/scripts/minio/asgard_minio.py download && \
+                         python3 -u asgard/scripts/minio/asgard_minio.py download && \
                          ! [ -e /data/valhalla/elevation_tiles ] && \
                          rm -rf tmp_tiles && mkdir tmp_tiles && tar -xf elevation_tiles.tar -C tmp_tiles && \
                          mv tmp_tiles/elevation_tiles /data/valhalla/elevation_tiles && \

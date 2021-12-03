@@ -90,12 +90,11 @@ class WatchDog(Thread):
         return 0
 
     def run(self):
-        import logging
         try:
             while self._file_size() < self.file_total_size and self.keep_going:
-                logging.info(f"{self.file_name}: {self._file_size()} / {self.file_total_size}")
+                print(f"{self.file_name}: {self._file_size()} / {self.file_total_size}")
                 time.sleep(5)
-            logging.info(f"{self.file_name}: {self._file_size()} / {self.file_total_size}")
+            print(f"{self.file_name}: {self._file_size()} / {self.file_total_size}")
         except Exception as e:
             print(e)
 
