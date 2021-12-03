@@ -4,10 +4,23 @@ valhalla_tiles="/data/valhalla/valhalla_tiles.tar"
 config="/data/valhalla/valhalla.json"
 elevation_tiles="/data/valhalla/elevation_tiles"
 
+file_status() {
+  local file=$1
+  if [ -e $file ]  
+  then
+    echo "$file is OK"		
+  else
+    echo "still waiting for $file"		
+  fi
+}
+
 until [ -e $valhalla_tiles ] && [ -e $config ] && [ -e $elevation_tiles ]
 do
-        echo "file $valhalla_tiles, $config or $elevation_tiles not exists"
-        sleep 2
+  date
+  file_status $elevation_tiles
+  file_status $config
+  file_status $valhalla_tiles
+  sleep 5
 done
         echo "file  $valhalla_tiles, $config and $elevation_tiles  OK !!"
 
