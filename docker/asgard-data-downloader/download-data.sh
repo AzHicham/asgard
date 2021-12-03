@@ -15,6 +15,6 @@ then
   tar -vf elevation_tiles.tar --delete elevation_tiles        && \
   echo "DONE"
 else
-  echo "I've got everything a need"
+  echo "I've got everything needed"
 fi
 
