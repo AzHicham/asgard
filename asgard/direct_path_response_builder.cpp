@@ -482,11 +482,13 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
 
     o->set_embedded_type(pbnavitia::POI);
     auto* poi = o->mutable_poi();
+    poi->set_name(maneuver.bss_info().name());
+    poi->set_label(maneuver.bss_info().name());
     auto* poi_coords = poi->mutable_coord();
     poi_coords->set_lat(geo_point.lat());
     poi_coords->set_lon(geo_point.lng());
     auto* poi_type = poi->mutable_poi_type();
-    poi_type->set_name("Station");
+    poi_type->set_name("Bicycle Rental Station");
     poi_type->set_uri("poi_type:amenity:bicycle_rental");
     auto* address = poi->mutable_address();
     address->set_uri(uri.str());
@@ -505,7 +507,7 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
     desc->set_value("");
     auto* name = poi->add_properties();
     name->set_type("name");
-    name->set_value("");
+    name->set_value(maneuver.bss_info().name());
     auto* network = poi->add_properties();
     network->set_type("network");
     network->set_value(maneuver.bss_info().network());
