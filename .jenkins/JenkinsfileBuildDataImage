@@ -4,6 +4,8 @@ pipeline {
         // Parameters for Data Image
         string(name: 'PBF_URL', defaultValue: 'https://download.geofabrik.de/europe/france-latest.osm.pbf https://download.geofabrik.de/europe/spain-latest.osm.pbf', description: 'osm pbf url')
         string(name: 'COVERAGE', defaultValue : 'europe', description: 'data image tag')
+        string(name: 'HEALTH_CHECK_FROM', defaultValue : '2.32811;48.89283', description: 'start coordinate in health check script /data/valhalla/healthcheck.sh')
+        string(name: 'HEALTH_CHECK_TO', defaultValue : '2.37715;48.846781', description: 'end coordinate in health check script /data/valhalla/healthcheck.sh')
         string(name: 'VALHALLA_VERSION', defaultValue : '3.1.4', description: 'data image version')
         string(name: 'ELEVATION_BBOX', defaultValue : '-10.08 8.34 35.81 51.28', description: 'elevation bounding box, default value is for europe')
         string(name: 'SEARCH_RADIUS', defaultValue : '20', description: 'search radius used for coordinate projection')
@@ -94,6 +96,21 @@ pipeline {
                 """
             }
         }
+        stage('Create healthcheck.sh') {
+            agent {
+                docker {
+                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh """
+                    echo "/usr/bin/asgard-query directpath \"$HEALTH_CHECK_FROM\" \"$HEALTH_CHECK_TO\"" >> healthcheck.sh
+                    chmod +x healthcheck.sh
+                    cat healthcheck.sh
+                """
+            }
+        }
         stage('Upload to minio') {
             agent {
                 docker {
@@ -111,12 +128,13 @@ pipeline {
                     pip3 install -r ./scripts/minio/requirements.txt
                     python3 ./scripts/minio/asgard_minio.py upload valhalla_tiles.tar \
                                                                    elevation_tiles.tar \
-                                                                   valhalla.json \
+                                                                   valhalla.json  \
+                                                                   healthcheck.sh \
                                                                    -k $MINIO_USER \
                                                                    -s $MINIO_PSWD \
                                                                    -H $MINIO_HOST \
-                                                                   -b asgard \
-                                                                   -c $COVERAGE \
+                                                                   -b asgard      \
+                                                                   -c $COVERAGE   \
                                                                    -V $VALHALLA_VERSION
                     """
 
