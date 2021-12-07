@@ -13,6 +13,7 @@ then
   mv tmp_tiles/elevation_tiles /data/valhalla/elevation_tiles && \
   echo "cleaning up elevation_tiles.tar"                      && \
   tar -vf elevation_tiles.tar --delete elevation_tiles        && \
+  chmod +x /data/valhalla/healthcheck.sh                      && \
   echo "DONE"
 else
   echo "I've got everything needed"
