@@ -15,7 +15,7 @@ file_status() {
   fi
 }
 
-until [ -e $valhalla_tiles ] && [ -e $config ] && [ -e $elevation_tiles ] && [-e healthcheck]
+until [ -e $valhalla_tiles ] && [ -e $config ] && [ -e $elevation_tiles ] && [ -e $healthcheck]
 do
   date
   file_status $elevation_tiles
