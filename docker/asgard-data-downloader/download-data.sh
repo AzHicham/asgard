@@ -4,7 +4,7 @@
 # Once the downloading is finished, the elevation_tiles.tar will be decompressed ONLY if the elevation_tiles doesn't exist
 # Note: after extraction of elevation_tiles.tar, we remove the content in elevation_tiles.tar to reduce disk usage,
 # but still save elevation_tiles.tar so it won't be downloaded when rebooting
-if ! [ -e /data/valhalla/elevation_tiles ] || ! [ -e /data/valhalla/valhalla.json ] || ! [ -e /data/valhalla/valhalla_tiles.tar ]
+if ! [ -e /data/valhalla/elevation_tiles ] || ! [ -e /data/valhalla/valhalla.json ] || ! [ -e /data/valhalla/valhalla_tiles.tar ] || ! [ -e /data/valhalla/healthcheck.sh ]
 then
   python3 -u /asgard/scripts/minio/asgard_minio.py download   && \
   ! [ -e /data/valhalla/elevation_tiles ]                     && \
