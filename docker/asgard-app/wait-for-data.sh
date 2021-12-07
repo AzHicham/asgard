@@ -3,6 +3,7 @@
 valhalla_tiles="/data/valhalla/valhalla_tiles.tar"
 config="/data/valhalla/valhalla.json"
 elevation_tiles="/data/valhalla/elevation_tiles"
+healthcheck="/data/valhalla/healthcheck.sh"
 
 file_status() {
   local file=$1
@@ -14,15 +15,16 @@ file_status() {
   fi
 }
 
-until [ -e $valhalla_tiles ] && [ -e $config ] && [ -e $elevation_tiles ]
+until [ -e $valhalla_tiles ] && [ -e $config ] && [ -e $elevation_tiles ] && [-e healthcheck]
 do
   date
   file_status $elevation_tiles
   file_status $config
   file_status $valhalla_tiles
+  file_status $healthcheck
   sleep 5
 done
-        echo "file  $valhalla_tiles, $config and $elevation_tiles  OK !!"
+  echo "file  $valhalla_tiles, $config, $elevation_tiles and $healthcheck OK !!"
 
 is_ready () {
   local file=$1
@@ -40,4 +42,4 @@ is_ready () {
   echo "File $1 Ready"
 }
 
-is_ready $valhalla_tiles && is_ready $config && is_ready $elevation_tiles
+is_ready $valhalla_tiles && is_ready $config && is_ready $elevation_tiles && is_ready $healthcheck
