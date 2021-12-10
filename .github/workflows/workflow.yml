@@ -17,6 +17,8 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+    - name: install dependency
+      run: sudo apt update && sudo apt install -y httpie
     - name: build asgard docker
       run:
         docker build --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG ./docker/asgard-app
@@ -25,15 +27,24 @@ jobs:
         echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: push image release
       if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
-      run:
-        RELEASE_TAG=$(make get-app-release-tag)
-        docker tag navitia/asgard-app navitia/asgard-app:RELEASE_TAG
-        docker push navitia/asgard-app:RELEASE_TAG
+      run: |
+        TAG=$(make get-app-release-tag)
+        docker tag navitia/asgard-app navitia/asgard-app:$TAG
+        docker push navitia/asgard-app:$TAG
+    - name: Trig jenkins (release)
+      if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
+      run: |
+        TAG=$(make get-app-release-tag)
+        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-app/buildWithParameters NAVITIA_VALHALLA_TAG=$TAG
     - name: push image master
       if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-      run:
+      run: |
         docker tag navitia/asgard-app navitia/asgard-app:master
         docker push navitia/asgard-app:master
+    - name: Trig jenkins (master)
+      if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      run: |
+        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-app/buildWithParameters NAVITIA_VALHALLA_TAG=master
 
   build:
     runs-on: ubuntu-latest
