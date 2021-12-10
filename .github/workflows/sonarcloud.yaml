@@ -6,11 +6,12 @@ on:
   pull_request:
     branches: [ master ]
 
+
 jobs:
   sonar_analysis:
     runs-on: ubuntu-latest
     container:
-        image: navitia/asgard-build-deps:latest
+        image: navitia/asgard-build-deps:3.1.4
 
     steps:
     - name: Checkout
@@ -25,7 +26,7 @@ jobs:
         wget 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip' 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip'
         unzip -u build-wrapper-linux-x86.zip
         unzip -u sonar-scanner-cli-4.6.2.2472-linux.zip
-        
+
     - name: Cache Sonar
       id: cache-sonar
       uses: actions/cache@v2

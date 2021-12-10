@@ -1,31 +1,40 @@
 pipeline {
     agent any
-    parameters { 
-        string(name: 'branch_name', defaultValue: 'master', description: 'branch name')
+    parameters {
         string(name: 'registry_intern', defaultValue: 'docker-registry.canaltp.fr', description: 'registry intern')
+        string(name: 'NAVITIA_VALHALLA_TAG', defaultValue: 'latest', description: 'Valhalla docker image tag')
     }
     stages {
-         stage('Build Valhalla Service Image') {
+         stage('Pull Valhalla Service Image - DockerHub') {
             steps {
-                sh 'echo "Build with branch name" ${branch_name}'
-                sh "git fetch --tags"
-                sh "make build-asgard-valhalla-service-image TAG=`make get-app-${params.branch_name}-tag`"
+                sh "docker pull navitia/asgard-valhalla-service:${params.NAVITIA_VALHALLA_TAG}"
             }
         }
-	stage('Docker Login') {
+	  stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'core-ci-registry-access', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh "make docker-login DOCKERHUB_USER=${USERNAME} DOCKERHUB_PWD=${PASSWORD} REGISTRY_HOST=${params.registry_intern}"
                 }
             }
         }
-	stage('Push Asgard App Image to Intern') {
-	    steps {
-		sh "echo 'Push docker with tag:' \"${params.registry_intern}\""
-		sh "make push-valhalla-service-image TAG=`make get-app-${branch_name}-tag` REGISTRY_HOST=${params.registry_intern}"
-	    }
-	}
-        stage('Remove useless images') {
+	  stage('Push Asgard App Image to Intern') {
+      	    steps {
+                sh "docker push navitia/asgard-valhalla-service:${params.NAVITIA_VALHALLA_TAG}"
+      	    }
+	  }
+    stage ('Trigger data jobs') {
+            steps {
+                  sh 'echo "Valhalla version" ${NAVITIA_VALHALLA_TAG}'
+                  build job: 'build-asgard-data', parameters: [string(name: 'PBF_URL', value: 'https://download.geofabrik.de/europe/france-latest.osm.pbf'),
+                                                               string(name: 'COVERAGE', value: 'france'),
+                                                               string(name: 'VALHALLA_VERSION', value: "${params.NAVITIA_VALHALLA_TAG}"),
+                                                               string(name: 'ELEVATION_BBOX', value: '-5.12 8.55 42.23 51.17'),
+                                                               string(name: 'SEARCH_RADIUS', value: '20'),
+                                                               string(name: 'MINIO_HOST', value: 'http://vippriv-asgard-prd-minio.canaltp.prod')], wait: false
+                  build job: 'build-asgard-data-downloader', parameters: [string(name: 'MIOIO_VERSION', value: 'master')], wait: false
+              }
+    }
+    stage('Remove useless images') {
             steps {
                 sh 'echo "Clean docker images"'
                 sh "make wipe-useless-images"
@@ -45,4 +54,3 @@ pipeline {
         }
     }
 }
-
