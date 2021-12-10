@@ -29,12 +29,18 @@ jobs:
     - name: dockerhub login
       run:
         echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-    - name: build dockers
+    - name: build valhalla-build docker
       run:
-        docker build -t navitia/valhalla-build:$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} ./docker/valhalla-build
-        docker build -t navitia/valhalla-run:$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} ./docker/valhalla-run
-        docker build -t navitia/asgard-valhalla-service:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG ./docker/asgard-valhalla-service
-        docker build -t navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_BRANCH_TAG=${{ github.event.inputs.VALHALLA_BRANCH_TAG }} ./docker/asgard-build-deps
+        docker build -t navitia/valhalla-build:$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} docker/valhalla-build
+    - name: build valhalla-run docker
+      run:
+        docker build -t navitia/valhalla-run:$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} docker/valhalla-run
+    - name: build asgard-valhalla-service docker
+      run:
+        docker build -t navitia/asgard-valhalla-service:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG docker/asgard-valhalla-service
+    - name: build asgard-build-deps docker
+      run:
+        docker build -t navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_BRANCH_TAG=${{ github.event.inputs.VALHALLA_BRANCH_TAG }} docker/asgard-build-deps
     - name: push images
       run:
         docker push navitia/valhalla-build
