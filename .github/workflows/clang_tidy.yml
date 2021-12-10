@@ -18,7 +18,7 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-latest
     container:
-        image: navitia/asgard-build-deps:3.1.2
+        image: navitia/asgard-build-deps:3.1.4
 
     steps:
     - uses: actions/checkout@v2
