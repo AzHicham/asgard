@@ -35,7 +35,7 @@ jobs:
       if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
       run: |
         TAG=$(make get-app-release-tag)
-        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-app/buildWithParameters NAVITIA_VALHALLA_TAG=$TAG
+        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-app/buildWithParameters ASGARD_TAG=$TAG
     - name: push image master
       if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       run: |
@@ -44,7 +44,7 @@ jobs:
     - name: Trig jenkins (master)
       if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       run: |
-        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-app/buildWithParameters NAVITIA_VALHALLA_TAG=master
+        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-app/buildWithParameters ASGARD_TAG=master
 
   build:
     runs-on: ubuntu-latest
