@@ -18,7 +18,7 @@ pipeline {
         stage('Download pbf') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -32,7 +32,7 @@ pipeline {
         stage('Valhalla build config') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
                     args '-u root:sudo'
                     reuseNode true
                 }
@@ -57,7 +57,7 @@ pipeline {
         stage('Valhalla build elevation') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -68,7 +68,7 @@ pipeline {
         stage('Valhalla build tiles') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -83,7 +83,7 @@ pipeline {
         stage('Valhalla prod config') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -99,7 +99,7 @@ pipeline {
         stage('Create healthcheck.sh') {
             agent {
                 docker {
-                    image 'valhalla/valhalla:run-${VALHALLA_VERSION}'
+                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -141,7 +141,7 @@ pipeline {
                 }
             }
         }
-        
+
     }
     post {
         always {
