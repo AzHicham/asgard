@@ -5,9 +5,6 @@ on:
     branches:
     - master
 
-env:
-  NAVITIA_VALHALLA_TAG: 3.1.2
-
 jobs:
   info:
     runs-on: ubuntu-latest
@@ -21,7 +18,7 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-latest
     container:
-        image: navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG
+        image: navitia/asgard-build-deps:3.1.2
 
     steps:
     - uses: actions/checkout@v2

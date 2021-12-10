@@ -14,6 +14,9 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - name: build asgard docker
       run:
         docker build ./docker/asgard-app
