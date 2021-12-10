@@ -19,7 +19,7 @@ jobs:
         submodules: recursive
     - name: build asgard docker
       run:
-        docker build ./docker/asgard-app
+        docker build --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG ./docker/asgard-app
     - name: dockerhub login
       run:
         echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -38,7 +38,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG
+      image: navitia/asgard-build-deps:3.1.2
     steps:
     - uses: actions/checkout@v2
       with:

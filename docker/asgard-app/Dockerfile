@@ -1,6 +1,6 @@
-ARG ASGARD_VALHALLA_TAG
+ARG NAVITIA_VALHALLA_TAG
 
-FROM navitia/asgard-build-deps:${ASGARD_VALHALLA_TAG} as builder
+FROM navitia/asgard-build-deps:${NAVITIA_VALHALLA_TAG} as builder
 
 RUN wget --progress=bar:force:noscroll https://github.com/CanalTP/asgard-query/releases/download/v1.0.0/asgard-query
 
