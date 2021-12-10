@@ -22,16 +22,16 @@ jobs:
     - name: Show inputs
       run:
         echo "Valhalla branch tag ${{ github.event.inputs.VALHALLA_BRANCH_TAG }}"
-        echo "Valhalla docker tag ${{ env.NAVITIA_VALHALLA_TAG }}"
+        echo "Valhalla docker tag $NAVITIA_VALHALLA_TAG"
     - name: dockerhub login
       run:
         echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: build dockers
       run:
-        docker build -t navitia/valhalla-build:${{ env.NAVITIA_VALHALLA_TAG }} --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} ./docker/valhalla-build
-        docker build -t navitia/valhalla-run:${{ env.NAVITIA_VALHALLA_TAG }} --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} ./docker/valhalla-run
-        docker build -t navitia/asgard-valhalla-service:${{ env.NAVITIA_VALHALLA_TAG }} --build-arg NAVITIA_VALHALLA_TAG=${{ env.NAVITIA_VALHALLA_TAG }} ./docker/asgard-valhalla-service
-        docker build -t navitia/asgard-build-deps:${{ env.NAVITIA_VALHALLA_TAG }} --build-arg NAVITIA_VALHALLA_TAG=${{ env.NAVITIA_VALHALLA_TAG }} --build-arg VALHALLA_BRANCH_TAG=${{ github.event.inputs.VALHALLA_BRANCH_TAG }} ./docker/asgard-build-deps
+        docker build -t navitia/valhalla-build:$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} ./docker/valhalla-build
+        docker build -t navitia/valhalla-run:$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} ./docker/valhalla-run
+        docker build -t navitia/asgard-valhalla-service:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG ./docker/asgard-valhalla-service
+        docker build -t navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_BRANCH_TAG=${{ github.event.inputs.VALHALLA_BRANCH_TAG }} ./docker/asgard-build-deps
     - name: push images
       run:
         docker push navitia/valhalla-build
