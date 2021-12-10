@@ -19,6 +19,9 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - name: Show inputs
       run:
         echo "Valhalla branch tag ${{ github.event.inputs.VALHALLA_BRANCH_TAG }}"
