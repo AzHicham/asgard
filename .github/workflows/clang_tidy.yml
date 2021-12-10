@@ -21,7 +21,7 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-latest
     container:
-        image: navitia/asgard-build-deps:${{ env.NAVITIA_VALHALLA_TAG }}
+        image: navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG
 
     steps:
     - uses: actions/checkout@v2
