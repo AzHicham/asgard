@@ -42,7 +42,7 @@ jobs:
       run:
         docker build -t navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_BRANCH_TAG=${{ github.event.inputs.VALHALLA_BRANCH_TAG }} docker/asgard-build-deps
     - name: push images
-      run:
+      run: |
         docker push navitia/valhalla-build
         docker push navitia/valhalla-run
         docker push navitia/asgard-valhalla-service
