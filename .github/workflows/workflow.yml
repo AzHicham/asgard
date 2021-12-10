@@ -50,6 +50,6 @@ jobs:
     - name: Run cmake
       run: mkdir build && cd build && cmake -DENABLE_SANITIZERS=On ../
     - name: build
-      run: make
+      run: cd build && make
     - name: test
       run: cd asgard && ctest
