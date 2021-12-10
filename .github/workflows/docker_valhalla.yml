@@ -1,0 +1,56 @@
+name: Valhalla dockers
+
+on:
+  workflow_dispatch:
+    inputs:
+      VALHALLA_DOCKER_TAG:
+        description: 'VALHALLA docker tag'
+        required: true
+        default: '3.1.4'
+      VALHALLA_BRANCH_TAG:
+        description: 'VALHALLA branch name'
+        required: true
+        default: '3.1.4'
+
+env:
+  NAVITIA_VALHALLA_TAG: ${{ github.event.inputs.VALHALLA_BRANCH_TAG }}
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Show inputs
+      run:
+        echo "Valhalla branch tag ${{ github.event.inputs.VALHALLA_BRANCH_TAG }}"
+        echo "Valhalla docker tag ${{ env.NAVITIA_VALHALLA_TAG }}"
+    - name: dockerhub login
+      run:
+        echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - name: build dockers
+      run:
+        docker build -t navitia/valhalla-build:${{ env.NAVITIA_VALHALLA_TAG }} --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} ./docker/valhalla-build
+        docker build -t navitia/valhalla-run:${{ env.NAVITIA_VALHALLA_TAG }} --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} ./docker/valhalla-run
+        docker build -t navitia/asgard-valhalla-service:${{ env.NAVITIA_VALHALLA_TAG }} --build-arg NAVITIA_VALHALLA_TAG=${{ env.NAVITIA_VALHALLA_TAG }} ./docker/asgard-valhalla-service
+        docker build -t navitia/asgard-build-deps:${{ env.NAVITIA_VALHALLA_TAG }} --build-arg NAVITIA_VALHALLA_TAG=${{ env.NAVITIA_VALHALLA_TAG }} --build-arg VALHALLA_BRANCH_TAG=${{ github.event.inputs.VALHALLA_BRANCH_TAG }} ./docker/asgard-build-deps
+    - name: push images
+      run:
+        docker push navitia/valhalla-build
+        docker push navitia/valhalla-run
+        docker push navitia/asgard-valhalla-service
+        docker push navitia/asgard-build-deps
+        docker logout
+    - name: Trig jenkins
+      shell: python3 {0}
+      run: |
+        import json
+        import requests
+
+        params = {}
+
+        secret = "${{secrets.JENKINS_NG_TOKEN}}"
+
+        url = "https://{}@jenkins-core.canaltp.fr/job/push_valhalla_images/buildWithParameters".format(secret)
+
+        request = requests.post(url, data = params )
+        print("Response status code : {}".format(request.status_code) )
+        print(request.text)
