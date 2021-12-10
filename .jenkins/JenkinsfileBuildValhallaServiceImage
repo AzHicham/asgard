@@ -19,7 +19,7 @@ pipeline {
         }
 	  stage('Push Asgard App Image to Intern') {
       	    steps {
-                sh "docker push navitia/asgard-valhalla-service:${params.NAVITIA_VALHALLA_TAG}"
+                sh "make push-valhalla-service-image TAG=${params.NAVITIA_VALHALLA_TAG} REGISTRY_HOST=${params.registry_intern}"
       	    }
 	  }
     stage ('Trigger data jobs') {

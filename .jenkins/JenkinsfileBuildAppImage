@@ -19,7 +19,7 @@ pipeline {
         }
   	stage('Push Asgard App Image to Intern') {
   	        steps {
-                sh "docker push navitia/asgard-app:${params.ASGARD_TAG}"
+  	            sh "make push-app-image TAG=${params.ASGARD_TAG} REGISTRY_HOST=${params.registry_intern}"
   	    }
   	}
     stage('Remove useless images') {
