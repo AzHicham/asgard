@@ -1,24 +1,52 @@
 name: CI
 
 on:
-    pull_request:
-    push:
-        branches:
-            - master
-            - release
+  pull_request:
+  push:
+    branches:
+      - master
+      - release
+
+env:
+  NAVITIA_VALHALLA_TAG: 3.1.2
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        container:
-            image: navitia/asgard-build-deps:latest
-        
-        steps:
-        - uses: actions/checkout@v2
-          with:
-            submodules: 'recursive'
-        - name: build
-          run: |
-            scripts/check-formatting.sh
-            cp -r /libvalhalla .    
-            mkdir build && cd build && cmake -DENABLE_SANITIZERS=On ../ && make && cd asgard && ctest
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - name: build asgard docker
+      run:
+        docker build ./docker/asgard-app
+    - name: dockerhub login
+      run:
+        echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - name: push image release
+      if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
+      run:
+        RELEASE_TAG=$(make get-app-release-tag)
+        docker tag navitia/asgard-app navitia/asgard-app:RELEASE_TAG
+        docker push navitia/asgard-app:RELEASE_TAG
+    - name: push image master
+      if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      run:
+        docker tag navitia/asgard-app navitia/asgard-app:master
+        docker push navitia/asgard-app:master
+
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: navitia/asgard-build-deps:${{ env.NAVITIA_VALHALLA_TAG }}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: check formatting
+      run: scripts/check-formatting.sh
+    - name: create libvalhalla symlink
+      run: ln -s /libvalhalla .
+    - name: Run cmake
+      run: mkdir build && cd build && cmake -DENABLE_SANITIZERS=On ../
+    - name: build
+      run: make
+    - name: test
+      run: cd asgard && ctest

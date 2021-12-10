@@ -5,10 +5,13 @@ on:
     branches:
     - master
 
+env:
+  NAVITIA_VALHALLA_TAG: 3.1.2
+
 jobs:
   info:
     runs-on: ubuntu-latest
-        
+
     steps:
     - name : Dump Github Context
       env:
@@ -18,8 +21,8 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-latest
     container:
-        image: navitia/asgard-build-deps:latest
-        
+        image: navitia/asgard-build-deps:${{ env.NAVITIA_VALHALLA_TAG }}
+
     steps:
     - uses: actions/checkout@v2
       with:
@@ -35,8 +38,8 @@ jobs:
       run: python /usr/bin/run-clang-tidy-10.py -header-filter='./asgard/*' -format -fix -p build || echo "Files have been tidied ! Let's commit them"
 
     # To avoid any error with git when creating PR
-    - name: Remove folder libvalhalla 
-      run: rm -rf libvalhalla 
+    - name: Remove folder libvalhalla
+      run: rm -rf libvalhalla
 
     - name: Commit and push changes
       # Handle case with no clang-tidy fix
@@ -64,4 +67,3 @@ jobs:
       run: |
         echo "Pull Request Number - ${{ env.PULL_REQUEST_NUMBER }}"
         echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-
