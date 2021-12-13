@@ -1,10 +1,11 @@
 ARG NAVITIA_VALHALLA_TAG
+ARG ASGARD_GIT_BRANCH=master
 
 FROM navitia/asgard-build-deps:${NAVITIA_VALHALLA_TAG} as builder
 
 RUN wget --progress=bar:force:noscroll https://github.com/CanalTP/asgard-query/releases/download/v1.0.0/asgard-query
 
-RUN git clone --depth=1 https://github.com/canaltp/asgard asgard
+RUN git clone --branch ${ASGARD_GIT_BRANCH} --depth=1 https://github.com/canaltp/asgard asgard
 
 WORKDIR /asgard
 
