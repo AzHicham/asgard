@@ -1,20 +1,13 @@
 pipeline {
     agent any
-    parameters { 
-        string(name: 'branch_name', defaultValue: 'master', description: 'branch name')
+    parameters {
         string(name: 'registry_intern', defaultValue: 'docker-registry.canaltp.fr', description: 'registry intern')
+        string(name: 'ASGARD_TAG', defaultValue: 'latest', description: 'Asgard docker image tag')
     }
     stages {
-        stage('Remove navitia/asgard-build-deps images') {
+        stage('Pull Asgard App Image - DockerHub') {
             steps {
-                sh "make remove-build-deps-image"
-            }
-        } 
-        stage('Build App Image') {
-            steps {
-                sh 'echo "Build with branch name" ${branch_name}'
-                sh "git fetch --tags"
-                sh "make build-app-image-${branch_name} TAG=`make get-app-${params.branch_name}-tag`"
+                sh "docker pull navitia/asgard-app:${params.ASGARD_TAG}"
             }
         }
         stage('Docker Login') {
@@ -24,29 +17,19 @@ pipeline {
                 }
             }
         }
-        stage('Tag release as latest and push it') {
-            when {
-                expression { params.branch_name == 'release' }
-            }
-            steps {
-                sh "docker tag navitia/asgard-app:`make get-app-${branch_name}-tag` navitia/asgard-app:latest"
-                sh "docker push navitia/asgard-app:latest"
-            }
-        }
-	stage('Push Asgard App Image to Intern') {
-	    steps {
-		sh "echo 'Push docker with tag:' \"${params.registry_intern}\""
-		sh "make push-app-image TAG=`make get-app-${branch_name}-tag` REGISTRY_HOST=${params.registry_intern}"
-	    }
-	}
-        stage('Remove useless images') {
+  	stage('Push Asgard App Image to Intern') {
+  	        steps {
+  	            sh "make push-app-image TAG=${params.ASGARD_TAG} REGISTRY_HOST=${params.registry_intern}"
+  	    }
+  	}
+    stage('Remove useless images') {
             steps {
                 sh "make wipe-useless-images"
             }
         }
     }
     post {
-        always {         
+        always {
             deleteDir()
         }
         failure {

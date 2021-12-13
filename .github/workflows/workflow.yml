@@ -1,24 +1,66 @@
 name: CI
 
 on:
-    pull_request:
-    push:
-        branches:
-            - master
-            - release
+  pull_request:
+  push:
+    branches:
+      - master
+      - release
+
+env:
+  NAVITIA_VALHALLA_TAG: 3.1.4
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        container:
-            image: navitia/asgard-build-deps:latest
-        
-        steps:
-        - uses: actions/checkout@v2
-          with:
-            submodules: 'recursive'
-        - name: build
-          run: |
-            scripts/check-formatting.sh
-            cp -r /libvalhalla .    
-            mkdir build && cd build && cmake -DENABLE_SANITIZERS=On ../ && make && cd asgard && ctest
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: install dependency
+      run: sudo apt update && sudo apt install -y httpie
+    - name: dockerhub login
+      run:
+        echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - name: build asgard docker
+      run:
+        docker build -t navitia/asgard-app --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG docker/asgard-app
+    - name: push image release
+      if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
+      run: |
+        TAG=$(make get-app-release-tag)
+        docker tag navitia/asgard-app navitia/asgard-app:$TAG
+        docker push navitia/asgard-app:$TAG
+    - name: Trig jenkins (release)
+      if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
+      run: |
+        TAG=$(make get-app-release-tag)
+        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-app/buildWithParameters ASGARD_TAG=$TAG
+    - name: push image master
+      if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      run: |
+        docker tag navitia/asgard-app navitia/asgard-app:master
+        docker push navitia/asgard-app:master
+    - name: Trig jenkins (master)
+      if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      run: |
+        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-app/buildWithParameters ASGARD_TAG=master
+
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: navitia/asgard-build-deps:3.1.4
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: check formatting
+      run: scripts/check-formatting.sh
+    - name: create libvalhalla symlink
+      run: ln -s /libvalhalla .
+    - name: Run cmake
+      run: mkdir build && cd build && cmake -DENABLE_SANITIZERS=On ../
+    - name: build
+      run: cd build && make
+    - name: test
+      run: cd asgard && ctest

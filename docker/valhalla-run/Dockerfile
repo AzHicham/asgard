@@ -1,0 +1,3 @@
+ARG VALHALLA_DOCKER_TAG
+
+FROM valhalla/valhalla:run-${VALHALLA_DOCKER_TAG}

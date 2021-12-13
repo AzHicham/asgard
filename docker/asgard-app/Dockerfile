@@ -1,4 +1,6 @@
-FROM navitia/asgard-build-deps:latest as builder
+ARG NAVITIA_VALHALLA_TAG
+
+FROM navitia/asgard-build-deps:${NAVITIA_VALHALLA_TAG} as builder
 
 RUN wget --progress=bar:force:noscroll https://github.com/CanalTP/asgard-query/releases/download/v1.0.0/asgard-query
 
@@ -15,12 +17,12 @@ RUN sed -i 's,git\@github.com:\([^/]*\)/\(.*\).git,https://github.com/\1/\2,' .g
 FROM ubuntu:20.04
 
 # we install only the depencies that are needed
-RUN apt update && apt install -y wget           \  
-    && apt install -y libboost-regex1.71.0      \ 
-                      libboost-thread1.71.0     \ 
-                      libboost-filesystem1.71.0 \  
+RUN apt update && apt install -y wget           \
+    && apt install -y libboost-regex1.71.0      \
+                      libboost-thread1.71.0     \
+                      libboost-filesystem1.71.0 \
                       libcurl4                  \
-                      libzmq3-dev               \ 
+                      libzmq3-dev               \
                       libprotobuf-dev
 
 COPY wait-for-data.sh /usr/bin/wait-for-data.sh
