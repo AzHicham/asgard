@@ -22,8 +22,8 @@ jobs:
     - name: dockerhub login
       run:
         echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - uses: nelonoel/branch-name@v1.0.1
     - name: build asgard docker
-      uses: nelonoel/branch-name@v1.0.1
       run: |
         echo "branch name ${BRANCH_NAME}"
         docker build -t navitia/asgard-app --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg ASGARD_GIT_BRANCH=${BRANCH_NAME} docker/asgard-app
