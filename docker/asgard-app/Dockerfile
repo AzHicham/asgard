@@ -1,7 +1,8 @@
 ARG NAVITIA_VALHALLA_TAG
-ARG ASGARD_GIT_BRANCH=master
 
 FROM navitia/asgard-build-deps:${NAVITIA_VALHALLA_TAG} as builder
+
+ARG ASGARD_GIT_BRANCH=master
 
 RUN wget --progress=bar:force:noscroll https://github.com/CanalTP/asgard-query/releases/download/v1.0.0/asgard-query
 
