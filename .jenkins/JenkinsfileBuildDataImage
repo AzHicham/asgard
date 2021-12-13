@@ -54,7 +54,10 @@ pipeline {
 
             }
         }
-        stage('Valhalla build elevation') {
+        stage('Valhalla build elevation <= 3.1.4') {
+            when {
+                expression { return VALHALLA_VERSION == '3.1.2' || VALHALLA_VERSION == '3.1.4' }
+            }
             agent {
                 docker {
                     image 'navitia/valhalla-run:${VALHALLA_VERSION}'
@@ -63,6 +66,23 @@ pipeline {
             }
             steps {
                 sh 'valhalla_build_elevation $ELEVATION_BBOX ${PWD}/elevation_tiles $(nproc)'
+            }
+        }
+        stage('Valhalla build elevation > 3.1.4') {
+            environment {
+                ELEVATION_BBOX_ = sh(returnStdout: true, script: "echo '${params.ELEVATION_BBOX}' | tr ' ' ',' ").trim()
+            }
+            when {
+                expression { return VALHALLA_VERSION != '3.1.2' && VALHALLA_VERSION != '3.1.4' }
+            }
+            agent {
+                docker {
+                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'valhalla_build_elevation -b "$ELEVATION_BBOX_" -c valhalla.json -p $(nproc)'
             }
         }
         stage('Valhalla build tiles') {
