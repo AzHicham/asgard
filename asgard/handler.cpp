@@ -25,6 +25,7 @@
 
 #include <valhalla/midgard/pointll.h>
 #include <valhalla/odin/directionsbuilder.h>
+#include <valhalla/odin/markup_formatter.h>
 #include <valhalla/thor/attributes_controller.h>
 #include <valhalla/thor/triplegbuilder.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -431,13 +432,14 @@ pbnavitia::Response Handler::handle_direct_path(const pbnavitia::Request& reques
     valhalla::Options options;
     const auto& pathedges = path_info_list.front();
     thor::AttributesController controller;
+    odin::MarkupFormatter formatter;
     valhalla::Api api;
     auto* trip_leg = api.mutable_trip()->mutable_routes()->Add()->mutable_legs()->Add();
     thor::TripLegBuilder::Build(options, controller, graph, mode_costing.get_costing(), pathedges.begin(),
                                 pathedges.end(), origin, dest, *trip_leg, {"route"}, nullptr);
 
     api.mutable_options()->set_language(request.direct_path().streetnetwork_params().language());
-    odin::DirectionsBuilder::Build(api);
+    odin::DirectionsBuilder::Build(api, formatter);
 
     const auto response = direct_path_response_builder::build_journey_response(request, pathedges, *trip_leg, api, valhalla_service_url);
 

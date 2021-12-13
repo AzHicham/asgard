@@ -79,16 +79,24 @@ void make_bss_streetnetwork_section(pbnavitia::Journey& journey,
     section->set_length(section_length);
     sn->set_length(section_length);
 
+    auto set_extremity_functor = [&travel_mode]() {
+        if (travel_mode == valhalla::DirectionsLeg_TravelMode::DirectionsLeg_TravelMode_kBicycle) {
+            return &set_extremity_poi;
+        } else {
+            return &set_extremity_pt_object;
+        }
+    }();
+
     auto shape_begin_idx = begin_maneuver->begin_shape_index();
-    set_extremity_pt_object(*(shape.begin() + shape_begin_idx), *begin_maneuver, section->mutable_origin());
+    set_extremity_functor(*(shape.begin() + shape_begin_idx), *begin_maneuver, section->mutable_origin());
 
     size_t shape_end_idx;
     if (end_maneuver == directions_leg.maneuver().end()) {
         shape_end_idx = shape.size();
-        set_extremity_pt_object(shape.back(), *(end_maneuver - 1), section->mutable_destination());
+        set_extremity_functor(shape.back(), *(end_maneuver - 1), section->mutable_destination());
     } else {
         shape_end_idx = end_maneuver->begin_shape_index() + 1;
-        set_extremity_pt_object(*(shape.begin() + shape_end_idx - 1), *end_maneuver, section->mutable_destination());
+        set_extremity_functor(*(shape.begin() + shape_end_idx - 1), *end_maneuver, section->mutable_destination());
     }
 
     compute_geojson({shape.begin() + shape_begin_idx,
@@ -122,8 +130,17 @@ void _make_bss_maneuver_section(pbnavitia::Journey& journey,
     section->set_begin_date_time(begin_date_time);
     section->set_end_date_time(begin_date_time + section_duration);
 
-    set_extremity_pt_object(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_origin());
-    set_extremity_pt_object(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_destination());
+    if (section_type == pbnavitia::BSS_PUT_BACK) {
+        set_extremity_poi(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_origin());
+    } else {
+        set_extremity_pt_object(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_origin());
+    }
+
+    if (section_type == pbnavitia::BSS_RENT) {
+        set_extremity_poi(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_destination());
+    } else {
+        set_extremity_pt_object(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_destination());
+    }
 
     compute_geojson({*(shape.begin() + shape_idx)}, *section);
 
@@ -452,6 +469,60 @@ void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const 
         o->set_name(maneuver.street_name().Get(0).value());
         address->set_name(maneuver.street_name().Get(0).value());
         address->set_label(maneuver.street_name().Get(0).value());
+    } else {
+        // this line is compulsory beacuse "name" is required.
+        o->set_name("");
+    }
+}
+
+void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o) {
+    auto uri = std::stringstream();
+    uri << std::fixed << std::setprecision(5) << geo_point.lng() << ";" << geo_point.lat();
+    o->set_uri(uri.str());
+
+    o->set_embedded_type(pbnavitia::POI);
+    auto* poi = o->mutable_poi();
+    poi->set_name(maneuver.bss_info().name());
+    poi->set_label(maneuver.bss_info().name());
+    auto* poi_coords = poi->mutable_coord();
+    poi_coords->set_lat(geo_point.lat());
+    poi_coords->set_lon(geo_point.lng());
+    auto* poi_type = poi->mutable_poi_type();
+    poi_type->set_name("Bicycle Rental Station");
+    poi_type->set_uri("poi_type:amenity:bicycle_rental");
+    auto* address = poi->mutable_address();
+    address->set_uri(uri.str());
+    auto* coords = address->mutable_coord();
+    coords->set_lat(geo_point.lat());
+    coords->set_lon(geo_point.lng());
+
+    auto* amenity = poi->add_properties();
+    amenity->set_type("amenity");
+    amenity->set_value("bicycle_rental");
+    auto* capacity = poi->add_properties();
+    capacity->set_type("capacity");
+    capacity->set_value(std::to_string(maneuver.bss_info().capacity()));
+    auto* desc = poi->add_properties();
+    desc->set_type("description");
+    desc->set_value("");
+    auto* name = poi->add_properties();
+    name->set_type("name");
+    name->set_value(maneuver.bss_info().name());
+    auto* network = poi->add_properties();
+    network->set_type("network");
+    network->set_value(maneuver.bss_info().network());
+    auto* bss_operator = poi->add_properties();
+    bss_operator->set_type("operator");
+    bss_operator->set_value(maneuver.bss_info().operator_());
+    auto* ref = poi->add_properties();
+    ref->set_type("ref");
+    ref->set_value(maneuver.bss_info().ref());
+
+    if (!maneuver.street_name().empty() && maneuver.street_name().Get(0).has_value()) {
+        o->set_name(maneuver.street_name().Get(0).value());
+        address->set_name(maneuver.street_name().Get(0).value());
+        address->set_label(maneuver.street_name().Get(0).value());
+        desc->set_value(maneuver.street_name().Get(0).value());
     } else {
         // this line is compulsory beacuse "name" is required.
         o->set_name("");

@@ -8,7 +8,7 @@ on:
       - release
 
 env:
-  NAVITIA_VALHALLA_TAG: 3.1.4
+  NAVITIA_VALHALLA_TAG: 3.1.4.1
 
 jobs:
   docker:
@@ -17,14 +17,18 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5
     - name: install dependency
       run: sudo apt update && sudo apt install -y httpie
     - name: dockerhub login
       run:
         echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: build asgard docker
-      run:
-        docker build -t navitia/asgard-app --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG docker/asgard-app
+      run: |
+        echo "branch name ${{ steps.branch-name.outputs.current_branch }}"
+        docker build -t navitia/asgard-app --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg ASGARD_GIT_BRANCH=${{ steps.branch-name.outputs.current_branch }} docker/asgard-app
     - name: push image release
       if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
       run: |
@@ -49,7 +53,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: navitia/asgard-build-deps:3.1.4
+      image: navitia/asgard-build-deps:3.1.4.1
     steps:
     - uses: actions/checkout@v2
       with:
