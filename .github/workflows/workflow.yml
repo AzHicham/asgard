@@ -25,6 +25,8 @@ jobs:
     - name: build asgard docker
       run:
         docker build -t navitia/asgard-app --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg ASGARD_GIT_BRANCH=${GITHUB_REF##*/} docker/asgard-app
+      env:
+        GITHUB_BRANCH: ${{ github.ref }}
     - name: push image release
       if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
       run: |
