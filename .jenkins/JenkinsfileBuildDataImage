@@ -83,8 +83,9 @@ pipeline {
                 python3 -m venv valhalla-elevation
                 .  ./valhalla-elevation/bin/activate
                 pip3 install shapely
-                valhalla_build_elevation -g ${PWD}/geojson -c valhalla.json -p $(nproc)
                 """
+                sh 'valhalla_build_elevation -g ${PWD}/geojson -c valhalla.json -p $(nproc)'
+                
             }
         }
         stage('Valhalla build tiles') {
