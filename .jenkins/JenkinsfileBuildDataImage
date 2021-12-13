@@ -40,7 +40,7 @@ pipeline {
             steps {
                 // ----------------------------------------------------
                 // Bug of valhalla/valhalla:run-3.1.4
-                sh 'apt update &&  apt-get install -y python3-distutils'
+                sh 'apt update && apt-get install -y python3-distutils'
                 // ----------------------------------------------------
                 sh 'valhalla_build_config --mjolnir-tile-dir ${PWD}/valhalla_tiles --additional-data-elevation ${PWD}/elevation_tiles > valhalla.json'
                 sh """
@@ -78,11 +78,13 @@ pipeline {
             agent {
                 docker {
                     image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    args '-u root:sudo'
                     reuseNode true
                 }
             }
             steps {
-                sh 'valhalla_build_elevation -b "$ELEVATION_BBOX_" -c valhalla.json -p $(nproc)'
+                sh 'apt update && apt install -y python3-shapely'
+                sh 'valhalla_build_elevation -g ${PWD}/geojson -c valhalla.json -p $(nproc)'
             }
         }
         stage('Valhalla build tiles') {
