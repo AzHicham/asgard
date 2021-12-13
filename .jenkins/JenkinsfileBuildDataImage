@@ -69,22 +69,22 @@ pipeline {
             }
         }
         stage('Valhalla build elevation > 3.1.4') {
-            environment {
-                ELEVATION_BBOX_ = sh(returnStdout: true, script: "echo '${params.ELEVATION_BBOX}' | tr ' ' ',' ").trim()
-            }
             when {
                 expression { return VALHALLA_VERSION != '3.1.2' && VALHALLA_VERSION != '3.1.4' }
             }
             agent {
                 docker {
-                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
-                    args '-u root:sudo'
+                    image 'python:3.9-slim'
                     reuseNode true
                 }
             }
             steps {
-                sh 'apt update && apt install -y python3-shapely'
-                sh 'valhalla_build_elevation -g ${PWD}/geojson -c valhalla.json -p $(nproc)'
+                sh """
+                python3 -m venv valhalla-elevation
+                .  ./valhalla-elevation/bin/activate
+                pip3 install shapely
+                valhalla_build_elevation -g ${PWD}/geojson -c valhalla.json -p $(nproc)
+                """
             }
         }
         stage('Valhalla build tiles') {
