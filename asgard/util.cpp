@@ -25,15 +25,15 @@ pbnavitia::StreetNetworkMode convert_valhalla_to_navitia_mode(const sif::TravelM
     }
 }
 
-pbnavitia::StreetNetworkMode convert_valhalla_to_navitia_mode(const valhalla::DirectionsLeg_TravelMode& mode) {
+pbnavitia::StreetNetworkMode convert_valhalla_to_navitia_mode(const valhalla::TravelMode& mode) {
     switch (mode) {
-    case valhalla::DirectionsLeg_TravelMode::DirectionsLeg_TravelMode_kDrive:
+    case valhalla::TravelMode::kDrive:
         return pbnavitia::Car;
 
-    case valhalla::DirectionsLeg_TravelMode::DirectionsLeg_TravelMode_kPedestrian:
+    case valhalla::TravelMode::kPedestrian:
         return pbnavitia::Walking;
 
-    case valhalla::DirectionsLeg_TravelMode::DirectionsLeg_TravelMode_kBicycle:
+    case valhalla::TravelMode::kBicycle:
         return pbnavitia::Bike;
 
     default:
