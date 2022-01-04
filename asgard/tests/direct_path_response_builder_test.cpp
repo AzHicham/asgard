@@ -53,6 +53,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         pbnavitia::Request request;
         valhalla::TripLeg trip_leg;
         valhalla::Api api;
+        api.mutable_options()->set_language("fr");
         auto response = build_journey_response(request, {}, trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::NO_SOLUTION);
         BOOST_CHECK_EQUAL(response.journeys_size(), 0);
@@ -66,6 +67,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         params->set_origin_mode("car");
 
         valhalla::Api api;
+        api.mutable_options()->set_language("fr");
         odin::MarkupFormatter formatter;
         std::vector<thor::PathInfo> path_info_list = create_path_info_list();
         request.mutable_direct_path()->set_datetime(1470241573);
@@ -115,6 +117,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         params->set_origin_mode("car");
 
         valhalla::Api api;
+        api.mutable_options()->set_language("fr");
         odin::MarkupFormatter formatter;
         std::vector<thor::PathInfo> path_info_list = create_path_info_list();
         request.mutable_direct_path()->set_datetime(1470241573);
