@@ -476,9 +476,8 @@ void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const 
 }
 
 void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o) {
-    auto uri = std::stringstream();
-    uri << std::fixed << std::setprecision(5) << geo_point.lng() << ";" << geo_point.lat();
-    o->set_uri(uri.str());
+    auto uri = "poi:osm:node:" + std::to_string(maneuver.bss_info().osm_node_id());
+    o->set_uri(uri);
 
     o->set_embedded_type(pbnavitia::POI);
     auto* poi = o->mutable_poi();
@@ -492,7 +491,7 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
     poi_type->set_name("Bicycle Rental Station");
     poi_type->set_uri("poi_type:amenity:bicycle_rental");
     auto* address = poi->mutable_address();
-    address->set_uri(uri.str());
+    address->set_uri(uri);
     auto* coords = address->mutable_coord();
     coords->set_lat(geo_point.lat());
     coords->set_lon(geo_point.lng());
