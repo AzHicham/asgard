@@ -67,4 +67,4 @@ jobs:
     - name: build
       run: cd build && make
     - name: test
-      run: cd build/asgard && ctest
+      run: CTEST_OUTPUT_ON_FAILURE=1 cd build/asgard && ctest --verbose
