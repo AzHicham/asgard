@@ -67,4 +67,4 @@ jobs:
     - name: build
       run: cd build && make
     - name: test
-      run: cd asgard && ctest
+      run: cd build/asgard && ctest
