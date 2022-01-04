@@ -487,7 +487,6 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
     poi_coords->set_lat(geo_point.lat());
     poi_coords->set_lon(geo_point.lng());
     auto* poi_type = poi->mutable_poi_type();
-    poi_type->set_uri(uri);
     poi_type->set_name("Bicycle Rental Station");
     poi_type->set_uri("poi_type:amenity:bicycle_rental");
     auto* address = poi->mutable_address();
