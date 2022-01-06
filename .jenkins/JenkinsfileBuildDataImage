@@ -18,7 +18,7 @@ pipeline {
         stage('Download pbf') {
             agent {
                 docker {
-                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    image 'navitia/asgard-build-deps:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -32,7 +32,7 @@ pipeline {
         stage('Valhalla build config') {
             agent {
                 docker {
-                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    image 'navitia/asgard-build-deps:${VALHALLA_VERSION}'
                     args '-u root:sudo'
                     reuseNode true
                 }
@@ -60,7 +60,7 @@ pipeline {
             }
             agent {
                 docker {
-                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    image 'navitia/asgard-build-deps:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -74,7 +74,7 @@ pipeline {
             }
             agent {
                 docker {
-                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    image 'navitia/asgard-build-deps:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -90,7 +90,7 @@ pipeline {
         stage('Valhalla build tiles') {
             agent {
                 docker {
-                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    image 'navitia/asgard-build-deps:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -105,7 +105,7 @@ pipeline {
         stage('Valhalla prod config') {
             agent {
                 docker {
-                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    image 'navitia/asgard-build-deps:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
@@ -121,7 +121,7 @@ pipeline {
         stage('Create healthcheck.sh') {
             agent {
                 docker {
-                    image 'navitia/valhalla-run:${VALHALLA_VERSION}'
+                    image 'navitia/asgard-build-deps:${VALHALLA_VERSION}'
                     reuseNode true
                 }
             }
