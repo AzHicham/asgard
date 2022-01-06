@@ -476,7 +476,7 @@ void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const 
 }
 
 void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o) {
-    auto uri = "poi:osm:node:" + std::to_string(maneuver.bss_info().osm_node_id());
+    auto uri = maneuver.bss_info().osm_node_id();
     o->set_uri(uri);
 
     o->set_embedded_type(pbnavitia::POI);

@@ -8,7 +8,7 @@ on:
       - release
 
 env:
-  NAVITIA_VALHALLA_TAG: 3.1.4.3
+  NAVITIA_VALHALLA_TAG: 3.1.4.4
 
 jobs:
   docker:
@@ -53,7 +53,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: navitia/asgard-build-deps:3.1.4.3
+      image: navitia/asgard-build-deps:3.1.4.4
     steps:
     - uses: actions/checkout@v2
       with:
