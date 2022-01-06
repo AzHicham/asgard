@@ -11,7 +11,7 @@ jobs:
   sonar_analysis:
     runs-on: ubuntu-latest
     container:
-        image: navitia/asgard-build-deps:3.1.4.2
+        image: navitia/asgard-build-deps:3.1.4.3
 
     steps:
     - name: Checkout
