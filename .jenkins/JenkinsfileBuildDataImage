@@ -79,12 +79,11 @@ pipeline {
                 }
             }
             steps {
-                sh """
-                wget https://bootstrap.pypa.io/get-pip.py && PIP_TARGET=./pip python get-pip.py
-                PYTHONPATH=./pip python3 -m pip install --target=./ shapely
-                """
-                sh 'PYTHONPATH=./ valhalla_build_elevation -g ${PWD}/geojson -c valhalla.json -p $(nproc)'
-                
+                // sh """
+                // wget https://bootstrap.pypa.io/get-pip.py && PIP_TARGET=./pip python get-pip.py
+                // PYTHONPATH=./pip python3 -m pip install --target=./ shapely
+                // """
+                sh 'valhalla_build_elevation -g ${PWD}/geojson -c valhalla.json -p $(nproc)'
             }
         }
         stage('Valhalla build tiles') {
