@@ -27,16 +27,16 @@ Options make_costing_option(const ModeCostingArgs& args) {
 
     Options options = make_default_directions_options(args.mode);
 
-    options.mutable_costing_options(vc::bicycle)->set_cycling_speed(args.speeds[vc::bicycle] * 3.6);
-    options.mutable_costing_options(vc::pedestrian)->set_walking_speed(args.speeds[vc::pedestrian] * 3.6);
+    options.mutable_costing_options()->at(vc::bicycle).set_cycling_speed(args.speeds[vc::bicycle] * 3.6);
+    options.mutable_costing_options()->at(vc::pedestrian).set_walking_speed(args.speeds[vc::pedestrian] * 3.6);
 
     // rent cost
-    options.mutable_costing_options(vc::pedestrian)->set_bike_share_cost(args.bss_return_duration);
-    options.mutable_costing_options(vc::pedestrian)->set_bike_share_penalty(args.bss_return_penalty);
+    options.mutable_costing_options()->at(vc::pedestrian).set_bike_share_cost(args.bss_return_duration);
+    options.mutable_costing_options()->at(vc::pedestrian).set_bike_share_penalty(args.bss_return_penalty);
 
     // return cost
-    options.mutable_costing_options(vc::bicycle)->set_bike_share_cost(args.bss_rent_duration);
-    options.mutable_costing_options(vc::bicycle)->set_bike_share_penalty(args.bss_rent_penalty);
+    options.mutable_costing_options()->at(vc::bicycle).set_bike_share_cost(args.bss_rent_duration);
+    options.mutable_costing_options()->at(vc::bicycle).set_bike_share_penalty(args.bss_rent_penalty);
 
     return options;
 }
@@ -47,7 +47,7 @@ ModeCosting::ModeCosting() {
     rapidjson::Document doc;
     sif::ParseCostingOptions(doc, "/costing_options", options);
     for (const auto& mode : {"car", "taxi", "walking", "bike"}) {
-        costing[util::navitia_to_valhalla_mode_index(mode)] = factory.Create(options.costing_options(util::convert_navitia_to_valhalla_costing(mode)));
+        costing[util::navitia_to_valhalla_mode_index(mode)] = factory.Create(options.costing_options().at(util::convert_navitia_to_valhalla_costing(mode)));
     }
 }
 
