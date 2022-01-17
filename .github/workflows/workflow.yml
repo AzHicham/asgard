@@ -33,6 +33,7 @@ jobs:
       if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/release' }}
       run: |
         TAG=$(make get-app-release-tag)
+        echo $TAG
         docker tag navitia/asgard-app navitia/asgard-app:$TAG
         docker push navitia/asgard-app:$TAG
     - name: Trig jenkins (release)
