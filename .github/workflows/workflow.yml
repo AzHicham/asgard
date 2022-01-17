@@ -28,8 +28,6 @@ jobs:
         echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: build asgard docker
       run: |
-        TAG=$(make get-app-release-tag)
-        echo $TAG
         echo "branch name ${{ steps.branch-name.outputs.current_branch }}"
         docker build -t navitia/asgard-app --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg ASGARD_GIT_BRANCH=${{ steps.branch-name.outputs.current_branch }} docker/asgard-app
     - name: push image release
