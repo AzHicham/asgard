@@ -478,6 +478,7 @@ void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const 
 void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o) {
     auto uri = maneuver.bss_info().osm_node_id();
     o->set_uri(uri);
+    o->set_name(maneuver.bss_info().name());
 
     o->set_embedded_type(pbnavitia::POI);
     auto* poi = o->mutable_poi();
@@ -507,7 +508,7 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
     capacity->set_value(std::to_string(maneuver.bss_info().capacity()));
     auto* desc = poi->add_properties();
     desc->set_type("description");
-    desc->set_value("");
+    desc->set_value(maneuver.bss_info().name());
     auto* name = poi->add_properties();
     name->set_type("name");
     name->set_value(maneuver.bss_info().name());
@@ -522,13 +523,8 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
     ref->set_value(maneuver.bss_info().ref());
 
     if (!maneuver.street_name().empty() && maneuver.street_name().Get(0).has_value_case()) {
-        o->set_name(maneuver.street_name().Get(0).value());
         address->set_name(maneuver.street_name().Get(0).value());
         address->set_label(maneuver.street_name().Get(0).value());
-        desc->set_value(maneuver.street_name().Get(0).value());
-    } else {
-        // this line is compulsory beacuse "name" is required.
-        o->set_name("");
     }
 }
 
