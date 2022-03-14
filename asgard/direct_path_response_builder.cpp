@@ -636,7 +636,7 @@ void compute_path_items(valhalla::Api& api,
             auto const& edge = trip_route.mutable_legs(0)->node(idx).edge();
             if (idx == 0 && edge.has_bicycle_type_case()) {
                 set_street_information(sn, edge);
-            } else {
+            } else if (idx > 0) {
                 auto const& prev_edge = trip_route.mutable_legs(0)->node(idx - 1).edge();
                 if (edge.has_bicycle_type_case() && prev_edge.has_bicycle_type_case() && edge.cycle_lane() != prev_edge.cycle_lane()) {
                     set_street_information(sn, edge);
