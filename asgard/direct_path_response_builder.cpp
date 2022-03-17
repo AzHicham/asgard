@@ -627,6 +627,19 @@ void compute_path_items(valhalla::Api& api,
     for (auto it = begin_maneuver; it < end_maneuver; ++it) {
         const auto& maneuver = *it;
         auto* path_item = sn->add_path_items();
+
+        for (auto idx = maneuver.begin_path_index(); idx < maneuver.end_path_index(); idx++) {
+            auto const& edge = trip_route.mutable_legs(0)->node(idx).edge();
+            if (idx == 0 && edge.has_bicycle_type_case()) {
+                set_street_information(sn, edge);
+            } else if (idx > 0) {
+                auto const& prev_edge = trip_route.mutable_legs(0)->node(idx - 1).edge();
+                if (edge.has_bicycle_type_case() && prev_edge.has_bicycle_type_case() && edge.cycle_lane() != prev_edge.cycle_lane()) {
+                    set_street_information(sn, edge);
+                }
+            }
+        }
+
         auto const& edge = trip_route.mutable_legs(0)->node(maneuver.begin_path_index()).edge();
 
         auto shape_begin_idx = it->begin_shape_index();
@@ -643,6 +656,13 @@ void compute_path_items(valhalla::Api& api,
             set_path_item_instruction_start_coord(*path_item, instruction_start_coord);
         }
     }
+}
+
+void set_street_information(pbnavitia::StreetNetwork* sn, const TripLeg_Edge& edge) {
+    auto* street_information = sn->add_street_information();
+    auto cycle_path_type = util::convert_valhalla_to_navitia_cycle_lane(edge.cycle_lane());
+    street_information->set_cycle_path_type(cycle_path_type);
+    street_information->set_geojson_offset(edge.begin_shape_index());
 }
 
 void set_path_item_instruction(const DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item, const bool is_last_maneuver) {
