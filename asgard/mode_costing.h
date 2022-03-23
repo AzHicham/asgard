@@ -1,5 +1,6 @@
 #pragma once
 
+#include <asgard/type.pb.h>
 #include <valhalla/sif/costfactory.h>
 #include <valhalla/sif/dynamiccost.h>
 
@@ -17,6 +18,21 @@ struct ModeCostingArgs {
     float bss_rent_penalty = 0;
     float bss_return_duration = 120;
     float bss_return_penalty = 0;
+
+    // Bike
+    float bike_use_roads = 0.5;
+    float bike_use_hills = 0.5;
+    float bike_use_ferry = 0.5;
+    float bike_avoid_bad_surfaces = 0.25;
+    bool bike_shortest = false;
+    pbnavitia::BicycleType bicycle_type = pbnavitia::hybrid;
+    float bike_use_living_streets = 0.5;
+    float bike_maneuver_penalty = 5;
+    float bike_service_penalty = 0;
+    float bike_service_factor = 1;
+    float bike_country_crossing_cost = 600;
+    float bike_country_crossing_penalty = 0;
+
     ModeCostingArgs() {
         mode = "";
         speeds.fill(0);
@@ -24,6 +40,19 @@ struct ModeCostingArgs {
         bss_rent_penalty = 0;
         bss_return_duration = 120;
         bss_return_penalty = 0;
+
+        bike_use_roads = 0.5;
+        bike_use_hills = 0.5;
+        bike_use_ferry = 0.5;
+        bike_avoid_bad_surfaces = 0.25;
+        bike_shortest = false;
+        bicycle_type = pbnavitia::hybrid;
+        bike_use_living_streets = 0.5;
+        bike_maneuver_penalty = 5;
+        bike_service_penalty = 0;
+        bike_service_factor = 1;
+        bike_country_crossing_cost = 600;
+        bike_country_crossing_penalty = 0;
     }
 };
 
