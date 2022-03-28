@@ -129,56 +129,59 @@ void clamp_speed(ModeCostingArgs& args) {
         }
     }
 }
+
+void fill_args_with_streetnetwork_params(const pbnavitia::StreetNetworkParams& sn_params,
+                                         ModeCostingArgs& args) {
+
+    auto bike_speed = sn_params.bike_speed();
+    if (args.mode == "bss" && sn_params.has_bss_speed()) {
+        bike_speed = sn_params.bss_speed();
+    }
+    args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = sn_params.walking_speed();
+    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
+    args.speeds[util::convert_navitia_to_valhalla_costing("car")] = sn_params.car_speed();
+    args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = sn_params.car_no_park_speed();
+
+    clamp_speed(args);
+
+    // Bss
+    args.bss_rent_duration = sn_params.bss_rent_duration();
+    args.bss_rent_penalty = sn_params.bss_rent_penalty();
+    args.bss_return_duration = sn_params.bss_return_duration();
+    args.bss_return_penalty = sn_params.bss_return_penalty();
+
+    //bike
+    args.bike_use_roads = sn_params.bike_use_roads();
+    args.bike_use_hills = sn_params.bike_use_hills();
+    args.bike_use_ferry = sn_params.bike_use_ferry();
+    args.bike_avoid_bad_surfaces = sn_params.bike_avoid_bad_surfaces();
+    args.bike_shortest = sn_params.bike_shortest();
+    args.bicycle_type = sn_params.bicycle_type();
+    args.bike_use_living_streets = sn_params.bike_use_living_streets();
+    args.bike_maneuver_penalty = sn_params.bike_maneuver_penalty();
+    args.bike_service_penalty = sn_params.bike_service_penalty();
+    args.bike_service_factor = sn_params.bike_service_factor();
+    args.bike_country_crossing_cost = sn_params.bike_country_crossing_cost();
+    args.bike_country_crossing_penalty = sn_params.bike_country_crossing_penalty();
+}
+
 ModeCostingArgs
 make_modecosting_args(const pbnavitia::DirectPathRequest& request) {
     ModeCostingArgs args{};
 
     auto const& request_params = request.streetnetwork_params();
-    args.mode = request.streetnetwork_params().origin_mode();
-
-    args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = request_params.walking_speed();
-
-    auto bike_speed = request_params.bike_speed();
-    if (args.mode == "bss" && request_params.has_bss_speed()) {
-        bike_speed = request_params.bss_speed();
-    }
-    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
-    args.speeds[util::convert_navitia_to_valhalla_costing("car")] = request_params.car_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = request_params.car_no_park_speed();
-
-    clamp_speed(args);
-
-    args.bss_rent_duration = request_params.bss_rent_duration();
-    args.bss_rent_penalty = request_params.bss_rent_penalty();
-    args.bss_return_duration = request_params.bss_return_duration();
-    args.bss_return_penalty = request_params.bss_return_penalty();
-
+    args.mode = request_params.origin_mode();
+    fill_args_with_streetnetwork_params(request_params, args);
     return args;
 }
 
 ModeCostingArgs
 make_modecosting_args(const pbnavitia::StreetNetworkRoutingMatrixRequest& request) {
-    ModeCostingArgs args;
+    ModeCostingArgs args{};
 
     args.mode = request.mode();
-
     auto const& request_params = request.streetnetwork_params();
-    auto bike_speed = request_params.bike_speed();
-    if (args.mode == "bss" && request_params.has_bss_speed()) {
-        bike_speed = request_params.bss_speed();
-    }
-    args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = request_params.walking_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
-    args.speeds[util::convert_navitia_to_valhalla_costing("car")] = request_params.car_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = request_params.car_no_park_speed();
-
-    clamp_speed(args);
-
-    args.bss_rent_duration = request_params.bss_rent_duration();
-    args.bss_rent_penalty = request_params.bss_rent_penalty();
-    args.bss_return_duration = request_params.bss_return_duration();
-    args.bss_return_penalty = request_params.bss_return_penalty();
-
+    fill_args_with_streetnetwork_params(request_params, args);
     return args;
 }
 
