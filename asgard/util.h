@@ -21,7 +21,7 @@ namespace asgard {
 namespace util {
 
 pbnavitia::StreetNetworkMode convert_valhalla_to_navitia_mode(const valhalla::sif::TravelMode& mode);
-pbnavitia::StreetNetworkMode convert_valhalla_to_navitia_mode(const valhalla::DirectionsLeg_TravelMode& mode);
+pbnavitia::StreetNetworkMode convert_valhalla_to_navitia_mode(const valhalla::TravelMode& mode);
 
 valhalla::sif::TravelMode convert_navitia_to_valhalla_mode(const std::string& mode);
 

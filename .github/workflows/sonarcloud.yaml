@@ -2,14 +2,16 @@ name: SonarCloud
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
 
 jobs:
   sonar_analysis:
     runs-on: ubuntu-latest
     container:
-        image: navitia/asgard-build-deps:latest
+        image: navitia/asgard-build-deps:3.1.4.6
 
     steps:
     - name: Checkout
@@ -21,10 +23,10 @@ jobs:
       run : |
         apt update -y
         apt install -y unzip wget gcovr
-        wget 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip' 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.0.2311-linux.zip'
+        wget 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip' 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip'
         unzip -u build-wrapper-linux-x86.zip
-        unzip -u sonar-scanner-cli-4.6.0.2311-linux.zip
-        
+        unzip -u sonar-scanner-cli-4.6.2.2472-linux.zip
+
     - name: Cache Sonar
       id: cache-sonar
       uses: actions/cache@v2
@@ -53,6 +55,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-          sonar-scanner-4.6.0.2311-linux/bin/sonar-scanner \
+          sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
                 -Dsonar.login=$SONAR_TOKEN \
                 -Dsonar.cfamily.threads=$(nproc)

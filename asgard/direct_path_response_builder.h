@@ -39,6 +39,7 @@ using ConstManeuverItetator = google::protobuf::RepeatedPtrField<valhalla::Direc
 void recompute_date_times_from_arrival(pbnavitia::Journey* journey, const time_t arrival_posix_time);
 
 void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o);
+void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o);
 void compute_metadata(pbnavitia::Journey& pb_journey);
 void compute_geojson(const std::vector<valhalla::midgard::PointLL>& list_geo_points, pbnavitia::Section& s);
 void compute_path_items(valhalla::Api& api,
@@ -53,6 +54,7 @@ void set_path_item_length(const valhalla::DirectionsLeg_Maneuver& maneuver, pbna
 void set_path_item_type(const valhalla::TripLeg_Edge& edge, pbnavitia::PathItem& path_item);
 void set_path_item_duration(const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item);
 void set_path_item_direction(const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item);
+void set_street_information(pbnavitia::StreetNetwork* sn, const valhalla::TripLeg_Edge& edge);
 void set_path_item_instruction(const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item, const bool is_last_maneuver);
 void set_path_item_instruction_start_coord(pbnavitia::PathItem& path_item, const valhalla::midgard::PointLL& instruction_start_coord);
 

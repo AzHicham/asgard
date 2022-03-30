@@ -1,0 +1,55 @@
+name: Valhalla dockers
+
+on:
+  workflow_dispatch:
+    inputs:
+      VALHALLA_DOCKER_TAG:
+        description: 'VALHALLA docker tag'
+        required: true
+        default: '3.1.4'
+      VALHALLA_BRANCH_TAG:
+        description: 'VALHALLA branch name'
+        required: true
+        default: '3.1.4'
+
+env:
+  NAVITIA_VALHALLA_TAG: ${{ github.event.inputs.VALHALLA_BRANCH_TAG }}
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: install dependency
+      run: sudo apt update && sudo apt install -y httpie
+    - name: Show inputs
+      run:
+        echo "Valhalla branch tag ${{ github.event.inputs.VALHALLA_BRANCH_TAG }}"
+        echo "Valhalla docker tag $NAVITIA_VALHALLA_TAG"
+    - name: dockerhub login
+      run:
+        echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - name: build valhalla-build docker
+      run:
+        docker build -t navitia/valhalla-build:$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} docker/valhalla-build
+    - name: build valhalla-run docker
+      run:
+        docker build -t navitia/valhalla-run:$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_DOCKER_TAG=${{ github.event.inputs.VALHALLA_DOCKER_TAG }} docker/valhalla-run
+    - name: build asgard-valhalla-service docker
+      run:
+        docker build -t navitia/asgard-valhalla-service:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG docker/asgard-valhalla-service
+    - name: build asgard-build-deps docker
+      run:
+        docker build -t navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG --build-arg NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG --build-arg VALHALLA_BRANCH_TAG=${{ github.event.inputs.VALHALLA_BRANCH_TAG }} docker/asgard-build-deps
+    - name: push images
+      run: |
+        docker push navitia/valhalla-build:$NAVITIA_VALHALLA_TAG
+        docker push navitia/valhalla-run:$NAVITIA_VALHALLA_TAG
+        docker push navitia/asgard-valhalla-service:$NAVITIA_VALHALLA_TAG
+        docker push navitia/asgard-build-deps:$NAVITIA_VALHALLA_TAG
+        docker logout
+    - name: Trig jenkins
+      run: |
+        http --ignore-stdin -v -f POST https://${{secrets.JENKINS_TOKEN}}@jenkins-core.canaltp.fr/job/build-asgard-valhalla-service/buildWithParameters NAVITIA_VALHALLA_TAG=$NAVITIA_VALHALLA_TAG

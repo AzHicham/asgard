@@ -79,16 +79,24 @@ void make_bss_streetnetwork_section(pbnavitia::Journey& journey,
     section->set_length(section_length);
     sn->set_length(section_length);
 
+    auto set_extremity_functor = [&travel_mode]() {
+        if (travel_mode == valhalla::TravelMode::kBicycle) {
+            return &set_extremity_poi;
+        } else {
+            return &set_extremity_pt_object;
+        }
+    }();
+
     auto shape_begin_idx = begin_maneuver->begin_shape_index();
-    set_extremity_pt_object(*(shape.begin() + shape_begin_idx), *begin_maneuver, section->mutable_origin());
+    set_extremity_functor(*(shape.begin() + shape_begin_idx), *begin_maneuver, section->mutable_origin());
 
     size_t shape_end_idx;
     if (end_maneuver == directions_leg.maneuver().end()) {
         shape_end_idx = shape.size();
-        set_extremity_pt_object(shape.back(), *(end_maneuver - 1), section->mutable_destination());
+        set_extremity_functor(shape.back(), *(end_maneuver - 1), section->mutable_destination());
     } else {
         shape_end_idx = end_maneuver->begin_shape_index() + 1;
-        set_extremity_pt_object(*(shape.begin() + shape_end_idx - 1), *end_maneuver, section->mutable_destination());
+        set_extremity_functor(*(shape.begin() + shape_end_idx - 1), *end_maneuver, section->mutable_destination());
     }
 
     compute_geojson({shape.begin() + shape_begin_idx,
@@ -122,8 +130,17 @@ void _make_bss_maneuver_section(pbnavitia::Journey& journey,
     section->set_begin_date_time(begin_date_time);
     section->set_end_date_time(begin_date_time + section_duration);
 
-    set_extremity_pt_object(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_origin());
-    set_extremity_pt_object(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_destination());
+    if (section_type == pbnavitia::BSS_PUT_BACK) {
+        set_extremity_poi(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_origin());
+    } else {
+        set_extremity_pt_object(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_origin());
+    }
+
+    if (section_type == pbnavitia::BSS_RENT) {
+        set_extremity_poi(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_destination());
+    } else {
+        set_extremity_pt_object(*(shape.begin() + shape_idx), *bss_maneuver, section->mutable_destination());
+    }
 
     compute_geojson({*(shape.begin() + shape_idx)}, *section);
 
@@ -448,13 +465,66 @@ void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const 
     coords->set_lon(geo_point.lng());
     o->set_embedded_type(pbnavitia::ADDRESS);
 
-    if (!maneuver.street_name().empty() && maneuver.street_name().Get(0).has_value()) {
+    if (!maneuver.street_name().empty() && maneuver.street_name().Get(0).has_value_case()) {
         o->set_name(maneuver.street_name().Get(0).value());
         address->set_name(maneuver.street_name().Get(0).value());
         address->set_label(maneuver.street_name().Get(0).value());
     } else {
         // this line is compulsory beacuse "name" is required.
         o->set_name("");
+    }
+}
+
+void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o) {
+    auto uri = maneuver.bss_info().osm_node_id();
+    o->set_uri(uri);
+    o->set_name(maneuver.bss_info().name());
+
+    o->set_embedded_type(pbnavitia::POI);
+    auto* poi = o->mutable_poi();
+    poi->set_uri(uri);
+    poi->set_name(maneuver.bss_info().name());
+    poi->set_label(maneuver.bss_info().name());
+    auto* poi_coords = poi->mutable_coord();
+    poi_coords->set_lat(geo_point.lat());
+    poi_coords->set_lon(geo_point.lng());
+    auto* poi_type = poi->mutable_poi_type();
+    poi_type->set_name("Bicycle Rental Station");
+    poi_type->set_uri("poi_type:amenity:bicycle_rental");
+
+    auto address_uri = std::stringstream();
+    address_uri << std::fixed << std::setprecision(5) << geo_point.lng() << ";" << geo_point.lat();
+    auto* address = poi->mutable_address();
+    address->set_uri(address_uri.str());
+    auto* coords = address->mutable_coord();
+    coords->set_lat(geo_point.lat());
+    coords->set_lon(geo_point.lng());
+
+    auto* amenity = poi->add_properties();
+    amenity->set_type("amenity");
+    amenity->set_value("bicycle_rental");
+    auto* capacity = poi->add_properties();
+    capacity->set_type("capacity");
+    capacity->set_value(std::to_string(maneuver.bss_info().capacity()));
+    auto* desc = poi->add_properties();
+    desc->set_type("description");
+    desc->set_value(maneuver.bss_info().name());
+    auto* name = poi->add_properties();
+    name->set_type("name");
+    name->set_value(maneuver.bss_info().name());
+    auto* network = poi->add_properties();
+    network->set_type("network");
+    network->set_value(maneuver.bss_info().network());
+    auto* bss_operator = poi->add_properties();
+    bss_operator->set_type("operator");
+    bss_operator->set_value(maneuver.bss_info().operator_());
+    auto* ref = poi->add_properties();
+    ref->set_type("ref");
+    ref->set_value(maneuver.bss_info().ref());
+
+    if (!maneuver.street_name().empty() && maneuver.street_name().Get(0).has_value_case()) {
+        address->set_name(maneuver.street_name().Get(0).value());
+        address->set_label(maneuver.street_name().Get(0).value());
     }
 }
 
@@ -557,6 +627,19 @@ void compute_path_items(valhalla::Api& api,
     for (auto it = begin_maneuver; it < end_maneuver; ++it) {
         const auto& maneuver = *it;
         auto* path_item = sn->add_path_items();
+
+        for (auto idx = maneuver.begin_path_index(); idx < maneuver.end_path_index(); idx++) {
+            auto const& edge = trip_route.mutable_legs(0)->node(idx).edge();
+            if (idx == 0 && edge.has_bicycle_type_case()) {
+                set_street_information(sn, edge);
+            } else if (idx > 0) {
+                auto const& prev_edge = trip_route.mutable_legs(0)->node(idx - 1).edge();
+                if (edge.has_bicycle_type_case() && prev_edge.has_bicycle_type_case() && edge.cycle_lane() != prev_edge.cycle_lane()) {
+                    set_street_information(sn, edge);
+                }
+            }
+        }
+
         auto const& edge = trip_route.mutable_legs(0)->node(maneuver.begin_path_index()).edge();
 
         auto shape_begin_idx = it->begin_shape_index();
@@ -575,8 +658,15 @@ void compute_path_items(valhalla::Api& api,
     }
 }
 
+void set_street_information(pbnavitia::StreetNetwork* sn, const TripLeg_Edge& edge) {
+    auto* street_information = sn->add_street_information();
+    auto cycle_path_type = util::convert_valhalla_to_navitia_cycle_lane(edge.cycle_lane());
+    street_information->set_cycle_path_type(cycle_path_type);
+    street_information->set_geojson_offset(edge.begin_shape_index());
+}
+
 void set_path_item_instruction(const DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item, const bool is_last_maneuver) {
-    if (maneuver.has_text_instruction() && !maneuver.text_instruction().empty()) {
+    if (maneuver.has_text_instruction_case() && !maneuver.text_instruction().empty()) {
         auto instruction = maneuver.text_instruction();
         if (!is_last_maneuver) {
             instruction += " Keep going for " + std::to_string((int)(maneuver.length() * KM_TO_M)) + " m.";
@@ -594,32 +684,32 @@ void set_path_item_instruction_start_coord(pbnavitia::PathItem& path_item, const
 }
 
 void set_path_item_name(const DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item) {
-    if (!maneuver.street_name().empty() && maneuver.street_name().Get(0).has_value()) {
+    if (!maneuver.street_name().empty() && maneuver.street_name().Get(0).has_value_case()) {
         path_item.set_name(maneuver.street_name().Get(0).value());
     }
 }
 
 void set_path_item_length(const DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item) {
-    if (maneuver.has_length()) {
+    if (maneuver.has_length_case()) {
         path_item.set_length(maneuver.length() * KM_TO_M);
     }
 }
 
 // For now, we only handle cycle lanes
 void set_path_item_type(const TripLeg_Edge& edge, pbnavitia::PathItem& path_item) {
-    if (edge.has_cycle_lane()) {
+    if (edge.has_cycle_lane_case()) {
         path_item.set_cycle_path_type(util::convert_valhalla_to_navitia_cycle_lane(edge.cycle_lane()));
     }
 }
 
 void set_path_item_duration(const DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item) {
-    if (maneuver.has_time()) {
+    if (maneuver.has_time_case()) {
         path_item.set_duration(maneuver.time());
     }
 }
 
 void set_path_item_direction(const DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item) {
-    if (maneuver.has_turn_degree()) {
+    if (maneuver.has_turn_degree_case()) {
         int turn_degree = maneuver.turn_degree() % 360;
         if (turn_degree > 180) turn_degree -= 360;
         path_item.set_direction(turn_degree);

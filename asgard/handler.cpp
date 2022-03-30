@@ -25,6 +25,7 @@
 
 #include <valhalla/midgard/pointll.h>
 #include <valhalla/odin/directionsbuilder.h>
+#include <valhalla/odin/markup_formatter.h>
 #include <valhalla/thor/attributes_controller.h>
 #include <valhalla/thor/triplegbuilder.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -45,19 +46,27 @@ using ProjectedLocations = std::unordered_map<midgard::PointLL, valhalla::baldr:
 constexpr size_t MAX_MASK_SIZE = 10000;
 using ProjectionFailedMask = std::bitset<MAX_MASK_SIZE>;
 
-static const std::unordered_map<std::string, float> TIMECOST_DIVISOR = {{"walking", thor::kTimeDistCostThresholdPedestrianDivisor},
-                                                                        {"bike", thor::kTimeDistCostThresholdBicycleDivisor},
-                                                                        {"bss", thor::kTimeDistCostThresholdPedestrianDivisor},
-                                                                        {"car", thor::kTimeDistCostThresholdAutoDivisor},
-                                                                        {"taxi", thor::kTimeDistCostThresholdAutoDivisor}};
+// The AVERAGE_SPEED is used to compute the cost_threshold, which is a safeguard on matrix's computation.
+// In valhalla, the cost_threshold is computed by dividing the distance by the average speed of the chosen travel mode.
+// This way of calculating is very approximate which caused the insufficient fallback duration in Navitia.
+// What we do here is to multiply the distance by the divisor in order to broaden the range of research in matrix.
+
+// Different average speeds can be found here:
+// https://github.com/valhalla/valhalla/blob/061f1d37a7d06cc64f1bb663f57abfc9186baa61/src/thor/timedistancematrix.cc#L36
+// https://github.com/valhalla/valhalla/blob/f6f1a75cb220e0698a31c6f13c17e4903257133a/src/thor/timedistancebssmatrix.cc#L42
+static const std::unordered_map<std::string, double> AVERAGE_SPEED = {{"walking", 1.0f},
+                                                                      {"bike", 4.4f},
+                                                                      {"bss", 4.4f},
+                                                                      {"car", 15.0f},
+                                                                      {"taxi", 15.0f}};
 
 // MAX_MATRIX_Distance value set by Valhalla
 // in meters
-static const std::unordered_map<std::string, float> MAX_MATRIX_DISTANCE = {{"walking", 200000},
-                                                                           {"bike", 200000},
-                                                                           {"bss", 200000},
-                                                                           {"car", 500000},
-                                                                           {"taxi", 500000}};
+static const std::unordered_map<std::string, float> MAX_MATRIX_DISTANCE = {{"walking", 10000}, // 10 KM
+                                                                           {"bike", 20000},    // 20 KM
+                                                                           {"bss", 20000},     // 20 KM
+                                                                           {"car", 200000},    // 200 KM
+                                                                           {"taxi", 200000}};  // 200 KM
 
 // Default value set by Navitia
 // in m/s
@@ -85,21 +94,22 @@ float get_max_distance(const std::string& mode, const pbnavitia::StreetNetworkRo
     if (duration < 0) {
         throw std::runtime_error("Matrix max duration is negative");
     }
-    float max_distance = duration * TIMECOST_DIVISOR.at(mode);
+    float max_distance = 1;
+    auto const& params = request.streetnetwork_params();
 
     switch (util::convert_navitia_to_streetnetwork_mode(mode)) {
     case pbnavitia::StreetNetworkMode::Walking:
-        max_distance *= request.asgard_max_walking_duration_coeff();
+        max_distance = duration * std::max(params.walking_speed(), AVERAGE_SPEED.at(mode)) * request.asgard_max_walking_duration_coeff();
         break;
     case pbnavitia::StreetNetworkMode::Bike:
-        max_distance *= request.asgard_max_bike_duration_coeff();
+        max_distance = duration * std::max(params.bike_speed(), AVERAGE_SPEED.at(mode)) * request.asgard_max_bike_duration_coeff();
         break;
     case pbnavitia::StreetNetworkMode::Bss:
-        max_distance *= request.asgard_max_bss_duration_coeff();
+        max_distance = duration * std::max(params.bss_speed(), AVERAGE_SPEED.at(mode)) * request.asgard_max_bss_duration_coeff();
         break;
     case pbnavitia::StreetNetworkMode::Car:
     case pbnavitia::StreetNetworkMode::Taxi:
-        max_distance *= request.asgard_max_car_duration_coeff();
+        max_distance = duration * std::max(params.car_speed(), AVERAGE_SPEED.at(mode)) * request.asgard_max_car_duration_coeff();
         break;
     default:
         throw std::runtime_error(std::string("Cannot compute max duration for mode: ") + mode);
@@ -119,56 +129,59 @@ void clamp_speed(ModeCostingArgs& args) {
         }
     }
 }
+
+void fill_args_with_streetnetwork_params(const pbnavitia::StreetNetworkParams& sn_params,
+                                         ModeCostingArgs& args) {
+
+    auto bike_speed = sn_params.bike_speed();
+    if (args.mode == "bss" && sn_params.has_bss_speed()) {
+        bike_speed = sn_params.bss_speed();
+    }
+    args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = sn_params.walking_speed();
+    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
+    args.speeds[util::convert_navitia_to_valhalla_costing("car")] = sn_params.car_speed();
+    args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = sn_params.car_no_park_speed();
+
+    clamp_speed(args);
+
+    // Bss
+    args.bss_rent_duration = sn_params.bss_rent_duration();
+    args.bss_rent_penalty = sn_params.bss_rent_penalty();
+    args.bss_return_duration = sn_params.bss_return_duration();
+    args.bss_return_penalty = sn_params.bss_return_penalty();
+
+    //bike
+    args.bike_use_roads = sn_params.bike_use_roads();
+    args.bike_use_hills = sn_params.bike_use_hills();
+    args.bike_use_ferry = sn_params.bike_use_ferry();
+    args.bike_avoid_bad_surfaces = sn_params.bike_avoid_bad_surfaces();
+    args.bike_shortest = sn_params.bike_shortest();
+    args.bicycle_type = sn_params.bicycle_type();
+    args.bike_use_living_streets = sn_params.bike_use_living_streets();
+    args.bike_maneuver_penalty = sn_params.bike_maneuver_penalty();
+    args.bike_service_penalty = sn_params.bike_service_penalty();
+    args.bike_service_factor = sn_params.bike_service_factor();
+    args.bike_country_crossing_cost = sn_params.bike_country_crossing_cost();
+    args.bike_country_crossing_penalty = sn_params.bike_country_crossing_penalty();
+}
+
 ModeCostingArgs
 make_modecosting_args(const pbnavitia::DirectPathRequest& request) {
     ModeCostingArgs args{};
 
     auto const& request_params = request.streetnetwork_params();
-    args.mode = request.streetnetwork_params().origin_mode();
-
-    args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = request_params.walking_speed();
-
-    auto bike_speed = request_params.bike_speed();
-    if (args.mode == "bss" && request_params.has_bss_speed()) {
-        bike_speed = request_params.bss_speed();
-    }
-    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
-    args.speeds[util::convert_navitia_to_valhalla_costing("car")] = request_params.car_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = request_params.car_no_park_speed();
-
-    clamp_speed(args);
-
-    args.bss_rent_duration = request_params.bss_rent_duration();
-    args.bss_rent_penalty = request_params.bss_rent_penalty();
-    args.bss_return_duration = request_params.bss_return_duration();
-    args.bss_return_penalty = request_params.bss_return_penalty();
-
+    args.mode = request_params.origin_mode();
+    fill_args_with_streetnetwork_params(request_params, args);
     return args;
 }
 
 ModeCostingArgs
 make_modecosting_args(const pbnavitia::StreetNetworkRoutingMatrixRequest& request) {
-    ModeCostingArgs args;
+    ModeCostingArgs args{};
 
     args.mode = request.mode();
-
     auto const& request_params = request.streetnetwork_params();
-    auto bike_speed = request_params.bike_speed();
-    if (args.mode == "bss" && request_params.has_bss_speed()) {
-        bike_speed = request_params.bss_speed();
-    }
-    args.speeds[util::convert_navitia_to_valhalla_costing("walking")] = request_params.walking_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("bike")] = bike_speed;
-    args.speeds[util::convert_navitia_to_valhalla_costing("car")] = request_params.car_speed();
-    args.speeds[util::convert_navitia_to_valhalla_costing("taxi")] = request_params.car_no_park_speed();
-
-    clamp_speed(args);
-
-    args.bss_rent_duration = request_params.bss_rent_duration();
-    args.bss_rent_penalty = request_params.bss_rent_penalty();
-    args.bss_return_duration = request_params.bss_return_duration();
-    args.bss_return_penalty = request_params.bss_return_penalty();
-
+    fill_args_with_streetnetwork_params(request_params, args);
     return args;
 }
 
@@ -422,13 +435,14 @@ pbnavitia::Response Handler::handle_direct_path(const pbnavitia::Request& reques
     valhalla::Options options;
     const auto& pathedges = path_info_list.front();
     thor::AttributesController controller;
+    odin::MarkupFormatter formatter;
     valhalla::Api api;
     auto* trip_leg = api.mutable_trip()->mutable_routes()->Add()->mutable_legs()->Add();
     thor::TripLegBuilder::Build(options, controller, graph, mode_costing.get_costing(), pathedges.begin(),
-                                pathedges.end(), origin, dest, {}, *trip_leg, {"route"}, nullptr, nullptr);
+                                pathedges.end(), origin, dest, *trip_leg, {"route"}, nullptr);
 
     api.mutable_options()->set_language(request.direct_path().streetnetwork_params().language());
-    odin::DirectionsBuilder::Build(api);
+    odin::DirectionsBuilder::Build(api, formatter);
 
     const auto response = direct_path_response_builder::build_journey_response(request, pathedges, *trip_leg, api, valhalla_service_url);
 

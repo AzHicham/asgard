@@ -27,7 +27,7 @@ std::vector<thor::PathInfo> create_path_info_list() {
     return path_info_list;
 }
 
-valhalla::TripLeg* create_trip_leg(valhalla::Api& api) {
+valhalla::TripLeg* create_trip_leg(valhalla::Api& api, const odin::MarkupFormatter& formatter) {
     auto* trip_leg = api.mutable_trip()->mutable_routes()->Add()->mutable_legs()->Add();
     auto const s = midgard::encode(list_geo_points);
 
@@ -40,7 +40,7 @@ valhalla::TripLeg* create_trip_leg(valhalla::Api& api) {
         trip_leg->add_node()->mutable_edge()->set_length_km((i * 5) / 1000.f);
     }
 
-    odin::DirectionsBuilder::Build(api);
+    odin::DirectionsBuilder::Build(api, formatter);
     auto m = api.mutable_directions()->mutable_routes(0)->mutable_legs(0)->mutable_maneuver(0);
     m->set_time(20);
     m->set_length(0.03);
@@ -53,6 +53,7 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         pbnavitia::Request request;
         valhalla::TripLeg trip_leg;
         valhalla::Api api;
+        api.mutable_options()->set_language("fr");
         auto response = build_journey_response(request, {}, trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::NO_SOLUTION);
         BOOST_CHECK_EQUAL(response.journeys_size(), 0);
@@ -66,11 +67,13 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         params->set_origin_mode("car");
 
         valhalla::Api api;
+        api.mutable_options()->set_language("fr");
+        odin::MarkupFormatter formatter;
         std::vector<thor::PathInfo> path_info_list = create_path_info_list();
         request.mutable_direct_path()->set_datetime(1470241573);
         request.mutable_direct_path()->set_clockwise(true);
 
-        auto trip_leg = create_trip_leg(api);
+        auto trip_leg = create_trip_leg(api, formatter);
 
         auto response = build_journey_response(request, path_info_list, *trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::ITINERARY_FOUND);
@@ -114,11 +117,13 @@ BOOST_AUTO_TEST_CASE(build_journey_response_test) {
         params->set_origin_mode("car");
 
         valhalla::Api api;
+        api.mutable_options()->set_language("fr");
+        odin::MarkupFormatter formatter;
         std::vector<thor::PathInfo> path_info_list = create_path_info_list();
         request.mutable_direct_path()->set_datetime(1470241573);
         request.mutable_direct_path()->set_clockwise(false);
 
-        auto trip_leg = create_trip_leg(api);
+        auto trip_leg = create_trip_leg(api, formatter);
 
         auto response = build_journey_response(request, path_info_list, *trip_leg, api, boost::none);
         BOOST_CHECK_EQUAL(response.response_type(), pbnavitia::ITINERARY_FOUND);
@@ -411,6 +416,17 @@ BOOST_AUTO_TEST_CASE(set_range_height_test) {
     BOOST_CHECK_EQUAL(sn.elevations(1).distance_from_start(), 53);
     BOOST_CHECK_EQUAL(sn.elevations(1).elevation(), 77);
     BOOST_CHECK_EQUAL(sn.elevations(1).geojson_index(), 2);
+}
+
+BOOST_AUTO_TEST_CASE(set_street_information_test) {
+    pbnavitia::StreetNetwork sn;
+    const valhalla::TripLeg_Edge edge;
+    set_street_information(&sn, edge);
+    BOOST_CHECK_EQUAL(sn.street_information_size(), 1);
+    BOOST_CHECK_EQUAL(sn.street_information(0).has_cycle_path_type(), true);
+    BOOST_CHECK_EQUAL(sn.street_information(0).has_geojson_offset(), true);
+    BOOST_CHECK_EQUAL(sn.street_information(0).cycle_path_type(), pbnavitia::CyclePathType::NoCycleLane);
+    BOOST_CHECK_EQUAL(sn.street_information(0).geojson_offset(), 0);
 }
 } // namespace direct_path_response_builder
 } // namespace asgard

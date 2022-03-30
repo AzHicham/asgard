@@ -1,5 +1,5 @@
 # Configuration
-.PHONY: build-data-image build-app-image-master build-app-image-release build-deps-image dockerhub-login get-app-master-tag get-app-release-tag push-app-image push-deps-image push-data-image wipe-useless-images help
+.PHONY: build-data-image build-app-image-master build-app-image-release build-deps-image build-data-downloader dockerhub-login get-app-master-tag get-app-release-tag push-app-image push-deps-image push-data-image push-data-downloader wipe-useless-images help
 .DEFAULT_GOAL := help
 
 BBOX ='-5.1972 8.3483 42.2646 51.1116' # France
@@ -9,9 +9,15 @@ build-data-image: ## Build Asgard data image with provided pbf (PBF_URL) and bbo
 	cd docker/asgard-data && \
 	docker build --build-arg pbf_url="${PBF_URL}" --build-arg elevation_min_x_max_x_min_y_max_y="${BBOX}" -t navitia/asgard-data:${TAG} . --no-cache
 
+build-data-downloader: ## Build Asgard data downloader using MinIO
+	$(info Building Asgard data image)
+	cd docker/asgard-data-downloader && \
+	docker build  -t navitia/asgard-data-downloader:${TAG} . --no-cache
+
 build-app-image-master: ## Build Asgard app image from master
 	$(info Building Asgard app image from master)
-	docker build -f docker/asgard-app/Dockerfile -t navitia/asgard-app:${TAG} . --no-cache
+	cd docker/asgard-app && \
+	docker build -t navitia/asgard-app:${TAG} . --no-cache
 
 build-app-image-release: ## Build Asgard app image from release
 	$(info Building Asgard app image from release)
@@ -27,7 +33,8 @@ build-deps-image: ## Build Asgard deps image
 
 build-asgard-valhalla-service-image: ## Build valhalla_service image, used for extra service(ex: elevation)
 	$(info Building Valhalla service image)
-	docker build -f docker/asgard-valhalla-service/Dockerfile -t navitia/asgard-valhalla-service:${TAG} . --no-cache
+	cd docker/asgard-valhalla-service && \
+	docker build -t navitia/asgard-valhalla-service:${TAG} . --no-cache
 	
 docker-login: ## Login Docker, DOCKERHUB_USER, DOCKERHUB_PWD, REGISTRY_HOST must be provided
 	$(info Login Docker)
@@ -57,6 +64,12 @@ push-deps-image: ## Push deps-image to dockerhub
 push-data-image: ## Push data-image to dockerhub, TAG must be provided 
 	$(info Push data-image to intern: ${REGISTRY_HOST})
 	[ "${REGISTRY_HOST}" ] && docker tag navitia/asgard-data:${TAG} ${REGISTRY_HOST}/navitia/asgard-data:${TAG} && docker push ${REGISTRY_HOST}/navitia/asgard-data:${TAG} || echo "REGISTRY_HOST is empty"
+
+push-data-image-downloader: ## Push data-image-downloader to internal registry
+	$(info Push data-image-downloader to intern: ${REGISTRY_HOST})
+	[ "${REGISTRY_HOST}" ] && \
+	docker tag navitia/asgard-data-downloader:${TAG} ${REGISTRY_HOST}/navitia/asgard-data-downloader:${TAG} && \
+	docker push ${REGISTRY_HOST}/navitia/asgard-data-downloader:${TAG} || echo "REGISTRY_HOST is empty"
 
 push-valhalla-service-image: ## Push data-image to dockerhub, TAG must be provided 
 	$(info Push data-image to intern: ${REGISTRY_HOST})
