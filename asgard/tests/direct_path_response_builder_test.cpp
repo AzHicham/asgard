@@ -417,5 +417,16 @@ BOOST_AUTO_TEST_CASE(set_range_height_test) {
     BOOST_CHECK_EQUAL(sn.elevations(1).elevation(), 77);
     BOOST_CHECK_EQUAL(sn.elevations(1).geojson_index(), 2);
 }
+
+BOOST_AUTO_TEST_CASE(set_street_information_test) {
+    pbnavitia::StreetNetwork sn;
+    const valhalla::TripLeg_Edge edge;
+    set_street_information(&sn, edge);
+    BOOST_CHECK_EQUAL(sn.street_information_size(), 1);
+    BOOST_CHECK_EQUAL(sn.street_information(0).has_cycle_path_type(), true);
+    BOOST_CHECK_EQUAL(sn.street_information(0).has_geojson_offset(), true);
+    BOOST_CHECK_EQUAL(sn.street_information(0).cycle_path_type(), pbnavitia::CyclePathType::NoCycleLane);
+    BOOST_CHECK_EQUAL(sn.street_information(0).geojson_offset(), 0);
+}
 } // namespace direct_path_response_builder
 } // namespace asgard

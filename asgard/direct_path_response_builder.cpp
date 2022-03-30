@@ -478,6 +478,7 @@ void set_extremity_pt_object(const valhalla::midgard::PointLL& geo_point, const 
 void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhalla::DirectionsLeg_Maneuver& maneuver, pbnavitia::PtObject* o) {
     auto uri = maneuver.bss_info().osm_node_id();
     o->set_uri(uri);
+    o->set_name(maneuver.bss_info().name());
 
     o->set_embedded_type(pbnavitia::POI);
     auto* poi = o->mutable_poi();
@@ -507,7 +508,7 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
     capacity->set_value(std::to_string(maneuver.bss_info().capacity()));
     auto* desc = poi->add_properties();
     desc->set_type("description");
-    desc->set_value("");
+    desc->set_value(maneuver.bss_info().name());
     auto* name = poi->add_properties();
     name->set_type("name");
     name->set_value(maneuver.bss_info().name());
@@ -522,13 +523,8 @@ void set_extremity_poi(const valhalla::midgard::PointLL& geo_point, const valhal
     ref->set_value(maneuver.bss_info().ref());
 
     if (!maneuver.street_name().empty() && maneuver.street_name().Get(0).has_value_case()) {
-        o->set_name(maneuver.street_name().Get(0).value());
         address->set_name(maneuver.street_name().Get(0).value());
         address->set_label(maneuver.street_name().Get(0).value());
-        desc->set_value(maneuver.street_name().Get(0).value());
-    } else {
-        // this line is compulsory beacuse "name" is required.
-        o->set_name("");
     }
 }
 
@@ -631,6 +627,19 @@ void compute_path_items(valhalla::Api& api,
     for (auto it = begin_maneuver; it < end_maneuver; ++it) {
         const auto& maneuver = *it;
         auto* path_item = sn->add_path_items();
+
+        for (auto idx = maneuver.begin_path_index(); idx < maneuver.end_path_index(); idx++) {
+            auto const& edge = trip_route.mutable_legs(0)->node(idx).edge();
+            if (idx == 0 && edge.has_bicycle_type_case()) {
+                set_street_information(sn, edge);
+            } else if (idx > 0) {
+                auto const& prev_edge = trip_route.mutable_legs(0)->node(idx - 1).edge();
+                if (edge.has_bicycle_type_case() && prev_edge.has_bicycle_type_case() && edge.cycle_lane() != prev_edge.cycle_lane()) {
+                    set_street_information(sn, edge);
+                }
+            }
+        }
+
         auto const& edge = trip_route.mutable_legs(0)->node(maneuver.begin_path_index()).edge();
 
         auto shape_begin_idx = it->begin_shape_index();
@@ -647,6 +656,13 @@ void compute_path_items(valhalla::Api& api,
             set_path_item_instruction_start_coord(*path_item, instruction_start_coord);
         }
     }
+}
+
+void set_street_information(pbnavitia::StreetNetwork* sn, const TripLeg_Edge& edge) {
+    auto* street_information = sn->add_street_information();
+    auto cycle_path_type = util::convert_valhalla_to_navitia_cycle_lane(edge.cycle_lane());
+    street_information->set_cycle_path_type(cycle_path_type);
+    street_information->set_geojson_offset(edge.begin_shape_index());
 }
 
 void set_path_item_instruction(const DirectionsLeg_Maneuver& maneuver, pbnavitia::PathItem& path_item, const bool is_last_maneuver) {
