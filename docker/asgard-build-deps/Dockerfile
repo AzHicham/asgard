@@ -7,7 +7,7 @@ ARG VALHALLA_BRANCH_TAG
 RUN apt update --assume-yes \
     && apt install -y wget libboost1.71-all-dev python3-shapely
 
-RUN git clone --branch ${VALHALLA_BRANCH_TAG} --depth=1 https://github.com/CanalTP/valhalla.git libvalhalla \
+RUN git clone --branch ${VALHALLA_BRANCH_TAG} --depth=1 https://github.com/hove-io/valhalla.git libvalhalla \
   && cd libvalhalla \
   && git submodule update --init --recursive --depth=1 \
   && cd -

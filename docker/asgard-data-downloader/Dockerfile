@@ -4,7 +4,7 @@ RUN apk update && apk upgrade && \
     apk add --no-cache git tar
 
 # Setup minio from asgard
-RUN git clone --depth=1 https://github.com/canaltp/asgard /asgard
+RUN git clone --depth=1 https://github.com/hove-io/asgard /asgard
 RUN pip install -U pip && pip install -r asgard/scripts/minio/requirements.txt
 
 COPY download-data.sh /usr/bin/download-data.sh
